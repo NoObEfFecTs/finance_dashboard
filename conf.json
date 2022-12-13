@@ -67,12 +67,5 @@
 
     "targets" : [
         "Daniel"
-    ],
-    "times" : [
-        "this week",
-        "this month",
-        "this quarter",
-        "this year"
     ]
 }
-
