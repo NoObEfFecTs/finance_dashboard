@@ -31,6 +31,8 @@ external_scripts = [{'src': 'https://cdn.plot.ly/plotly-locale-de-latest.js'}]
 
 
 app = dash.Dash(__name__, external_scripts=external_scripts,external_stylesheets=[dbc.themes.GRID, dbc.themes.BOOTSTRAP], assets_folder="./assets")
+
+server = app.server
 start_month = date.today().month
 start_year = date.today().year
 end_month = date.today().month
@@ -42,7 +44,7 @@ if start_month == 12:
 else:
     end_month += 1
 
-with open("conf.json") as f:
+with open("/app/conf.json") as f:
     config = json.load(f)
 
 
@@ -107,7 +109,7 @@ income_modal = html.Div(
                             dbc.Col(
                                 [
                                 html.P("Choose Category:"),
-                                dcc.Dropdown(list(config["categorys"].keys()), None, id='dd-inc-category'),
+                                dcc.Dropdown(list(config["categorys"]), None, id='dd-inc-category'),
                                 html.P("Choose Company:"),
                                 # dcc.Dropdown([], None, id='dd-company'),
                                 dcc.Input(id="dd-inc-company", type="text", autoComplete=True,  spellCheck=True),
@@ -167,7 +169,7 @@ cost_modal = html.Div(
                             dbc.Col(
                                 [
                                 html.P("Choose Category:"),
-                                dcc.Dropdown(list(config["categorys"].keys()), None, id='dd-cost-category'),
+                                dcc.Dropdown(list(config["categorys"]), None, id='dd-cost-category'),
                                 html.P("Choose Company:"),
                                 dbc.Input(placeholder="A small input...", id="dd-cost-company"),
                                 html.P("Choose Date:"),
@@ -230,7 +232,7 @@ bank_modal = html.Div(
                     dbc.ListGroup(
                         
                         [
-                            dbc.ListGroupItem([dcc.Dropdown(list(config["categorys"].keys()), None, style={"width" : "150px"}),]),
+                            dbc.ListGroupItem([dcc.Dropdown(list(config["categorys"]), None, style={"width" : "150px"}),]),
                             # dbc.ListGroupItem([dbc.DropdownMenu(label="normal dropdown", children=items),]),
                             dbc.ListGroupItem([dbc.Input(placeholder="Company"),]),
                             dbc.ListGroupItem([dcc.Dropdown(list(config["user"]), "Daniel", disabled=True ,style={"width" : "100px"}),]),
