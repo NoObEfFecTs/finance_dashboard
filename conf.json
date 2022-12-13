@@ -1,0 +1,78 @@
+{
+    "categorys" : {
+        "Lebensmittel" : [
+            "Rewe",
+            "Aldi",
+            "Kaufland",
+            "Netto",
+            "Lidl",
+            "Mensa",
+            "Restaurant"
+        ],
+        "Verkehr" : [
+            "DBahn",
+            "DVB",
+            "CVAG"
+        ],
+        "Versicherungen" : [
+            "Krankenkasse",
+            "Rente",
+            "Unfall",
+            "Haftpflicht"
+        ],
+        "Events" : [
+            "DSC",
+            "Messe/Ausflug"
+        ],
+        "Finanzen" : [
+            "Allianz",
+            "FFB"
+        ],
+        "Wohnung" : [
+            "Toom",
+            "Hornbach",
+            "Bauhaus",
+            "Miete",
+            "Strom",
+            "Internet",
+            "KarstadtKaufhof"
+        ],
+        "Kleidung+Hygiene" : [
+            "Rossmann",
+            "DM",
+            "KarstadtKaufhof"
+        ],
+        "Elektronik" : [
+            "Amazon",
+            "Saturn",
+            "MediaMarkt"
+        ],
+        "Abonements" : [
+            "Spotify",
+            "Netflix",
+            "Amazon Prime",
+            "Chemie Technik"
+        ],
+        "Sonstiges" : [
+            "Zeitschriften",
+            "Bücher",
+            "Sport",
+            "SportScheck"
+        ]
+    },
+
+    "user" : [
+        "Daniel"
+    ],
+
+    "targets" : [
+        "Daniel"
+    ],
+    "times" : [
+        "this week",
+        "this month",
+        "this quarter",
+        "this year"
+    ]
+}
+
