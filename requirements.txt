@@ -1,3 +1,9 @@
 influxdb-client
 dash
-dash_bootstrap_components
+dash_auth
+dash_daq
+dash-bootstrap-components
+dash-core-components
+gunicorn==20.1.0
+pandas==1.2.4
+numpy==1.18.1
