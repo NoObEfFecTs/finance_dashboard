@@ -13,11 +13,15 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 from tenacity import retry
 
-# You can generate an API token from the "API Tokens Tab" in the UI
+local = False
 
+if local:
+    with open("conf.json") as f:
+        config = json.load(f)
+else:
 
-with open("/app/conf.json") as f:
-    config = json.load(f)
+    with open("/app/conf.json") as f:
+        config = json.load(f)
 
 token = config["db_conf"]["token"]
 org = config["db_conf"]["org"]
@@ -605,5 +609,5 @@ def generate_chart(start_date, end_date, inc_sub, cost_sub, start_dat, end_dat):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
-    # app.run_server(host='192.168.188.20', port=8050, debug=True, use_debugger=True, use_reloader=True)
+    # app.run_server(debug=False)
+    app.run_server(host='192.168.188.20', port=8050, debug=True, use_debugger=True, use_reloader=True)
