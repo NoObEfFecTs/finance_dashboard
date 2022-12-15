@@ -14,11 +14,14 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 from tenacity import retry
 
 # You can generate an API token from the "API Tokens Tab" in the UI
-token = "0izRhaX1sF7TuEur3AKQNRU_81OYsfBcOPI0arYgA8qyomT0ynIHQqF9tQmnLkZhp00xKWcMRbr1Mkxm_UJfyQ=="
-org = "iobroker"
-bucket = "finance"
 
 
+with open("/app/conf.json") as f:
+    config = json.load(f)
+
+token = config["db_conf"]["token"]
+org = config["db_conf"]["org"]
+bucket = config["db_conf"]["bucket"]
 
 # setup logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s")
@@ -44,8 +47,7 @@ if start_month == 12:
 else:
     end_month += 1
 
-with open("/app/conf.json") as f:
-    config = json.load(f)
+
 
 
 title = dbc.Row(
