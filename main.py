@@ -26,6 +26,7 @@ else:
 token = config["db_conf"]["token"]
 org = config["db_conf"]["org"]
 bucket = config["db_conf"]["bucket"]
+url = config["db_conf"]["url"]
 
 # setup logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s")
@@ -308,7 +309,7 @@ app.layout = dbc.Container( children=[
 def add_cost(clicks, category, company, user, target, date, amount):   
     if amount != None:
         # return
-        with InfluxDBClient(url="http://192.168.188.47:8086", token=token, org=org) as client:
+        with InfluxDBClient(url=url, token=token, org=org) as client:
             year = int(date.split("-")[0])
             month = int(date.split("-")[1])
             day = int(date.split("-")[2])
@@ -401,7 +402,7 @@ def update_rows(add_clicks, state, child):
 def add_income(clicks, person, date, amount):   
     if amount != None:
         # return
-        with InfluxDBClient(url="http://192.168.188.47:8086", token=token, org=org) as client:
+        with InfluxDBClient(url=url, token=token, org=org) as client:
             year = int(date.split("-")[0])
             month = int(date.split("-")[1])
             day = int(date.split("-")[2])
@@ -508,7 +509,7 @@ def generate_chart(start_date, end_date, inc_sub, cost_sub, start_dat, end_dat):
             
             time = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
 
-        with InfluxDBClient(url="http://192.168.188.47:8086", token=token, org=org) as client:
+        with InfluxDBClient(url=url, token=token, org=org) as client:
             query = f'from(bucket: "finance") |> {time}'
             # query = f'from(bucket: "finance") |> range(start: -20d)'
 
@@ -609,5 +610,5 @@ def generate_chart(start_date, end_date, inc_sub, cost_sub, start_dat, end_dat):
 
 
 if __name__ == "__main__":
-    # app.run_server(debug=False)
-    app.run_server(host='192.168.188.20', port=8050, debug=True, use_debugger=True, use_reloader=True)
+    app.run_server(debug=False)
+    # app.run_server(host='192.168.188.20', port=8050, debug=True, use_debugger=True, use_reloader=True)

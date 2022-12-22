@@ -3,7 +3,13 @@ function do_build {
 }
 
 function do_run {
-    docker run --rm -it -p 8050:8050 --name=cost_ui cost_ui
+    docker run \
+	--rm -it \
+	-d \
+	 -p 8050:8050 \
+	 --name=cost_ui \
+	-v /home/pi/projects/finance_dashboard/conf.json:/app/conf.json \
+	 cost_ui
 }
 
 task=$1

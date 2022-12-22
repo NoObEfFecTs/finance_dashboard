@@ -8,13 +8,13 @@
 # Setup for normal linux machine
 
 1. clone repo
-2. create json config file `conf.json`
+2. create json config file `conf.json` `cat >> conf.json`
 ```json
 {
     "categorys" : [
         "category 1",
         "category 2",
-        "...",
+        "..."
     ],
     "user" : [
         "user 1"
@@ -27,7 +27,8 @@
     "db_conf" : {
         "org" : "<your-org>", 
         "bucket" : "<your bucket>",
-        "token" : "<your-token>"
+        "token" : "<your-token>",
+	"url" : "<database-url>"
     }
 }
 ```

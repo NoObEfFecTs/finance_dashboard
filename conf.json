@@ -1,0 +1,20 @@
+{
+    "categorys" : [
+        "category 1",
+        "category 2",
+        "..."
+    ],
+    "user" : [
+        "user 1"
+    ],
+    "targets" : [
+        "user 1",
+        "user 2"
+    ],
+    "db_conf" : {
+        "org" : "iobroker",
+        "bucket" : "finance",
+        "token" : "Y7D6r8FXhnlcukUl849fJyD6LcwQp3OsC1ClH3sZyuSJ0zO7RJlWVrsNlVV5uletyjbGzapLQ_d2_MgNGpg3tg==",
+	"url" : "http://raspi14:8087"
+	}
+}
