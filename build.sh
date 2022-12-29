@@ -6,10 +6,10 @@ function do_run {
     docker run \
 	--rm -it \
 	-d \
-	 -p 8050:8050 \
-	 --name=cost_ui \
-	-v /home/pi/projects/finance_dashboard/conf.json:/app/conf.json \
-	 cost_ui
+	-p 8050:8050 \
+	--name=cost_ui \
+	-v $(pwd):/app \
+	cost_ui
 }
 
 task=$1

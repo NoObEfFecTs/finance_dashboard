@@ -354,7 +354,7 @@ def update_rows(add_clicks, state, child):
                     if "id" in list(bla.keys()):
                         # row["props"]["children"][idx]["props"]["children"][0]["props"]["id"] = "rm_" + str(id)
                         row["props"]["children"][idx]["props"]["children"][0]["props"]["id"] = {'type': 'remove-btn', 'index': "rm_" + str(id)}
-                        logging.info("add id: "+"rm_" + str(id))
+                        logging.debug("add id: "+"rm_" + str(id))
                         if len(child) == 0:
                             row["props"]["children"][idx]["props"]["children"][0]["props"]["disabled"] = True
                         else:
@@ -366,7 +366,7 @@ def update_rows(add_clicks, state, child):
             return test
         case trigger if "rm" in json.loads(trigger)["index"]:
             index = int(json.loads(trigger)["index"].split("_")[1]) -1
-            logging.info(f"index {index}")
+            logging.debug(f"index {index}")
             child.remove(child[index])
 
             for id, row in enumerate(child):
@@ -376,7 +376,7 @@ def update_rows(add_clicks, state, child):
                     if "id" in list(bla.keys()):
                         # row["props"]["children"][idx]["props"]["children"][0]["props"]["id"] = "rm_" + str(id)
                         row["props"]["children"][idx]["props"]["children"][0]["props"]["id"] = {'type': 'remove-btn', 'index': "rm_" + str(id)}
-                        logging.info("new id: "+"rm_" + str(id))
+                        logging.debug("new id: "+"rm_" + str(id))
                         if len(child) == 1:
                             row["props"]["children"][idx]["props"]["children"][0]["props"]["disabled"] = True
                         else:
