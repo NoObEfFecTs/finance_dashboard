@@ -1,20 +1,27 @@
 {
     "categorys" : [
-        "category 1",
-        "category 2",
-        "..."
+        "Lebensmittel",
+        "Wohnung",
+        "Bus/Bahn",
+        "Finanzen",
+        "Versicherungen",
+        "Events"
+    ],
+    "employer" : [
+        "TU Dresden",
+        "HZDR",
+        "Company 1"
     ],
     "user" : [
-        "user 1"
+        "Daniel"
     ],
     "targets" : [
-        "user 1",
-        "user 2"
+        "Daniel"
     ],
     "db_conf" : {
         "org" : "iobroker",
         "bucket" : "finance",
-        "token" : "Y7D6r8FXhnlcukUl849fJyD6LcwQp3OsC1ClH3sZyuSJ0zO7RJlWVrsNlVV5uletyjbGzapLQ_d2_MgNGpg3tg==",
-	"url" : "http://raspi14:8087"
+        "token" : "QeqOJZ5Xnpwj05uwu3JlV36F8qfKq8EYDArJsgv88dVA2NA5hs6w1pTJk0BPdlvijaP4bPD16iTaO1zhrccmvw==",
+	"url" : "http://192.168.188.47:8086"
 	}
 }
