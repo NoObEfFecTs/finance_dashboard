@@ -199,13 +199,13 @@ bank_modal = html.Div(
                     dbc.ListGroup(
                         
                         [
-                            dbc.ListGroupItem([dcc.Dropdown(list(config["categorys"]), None, id="category_0", style={"width" : "150px"}),]),
-                            dbc.ListGroupItem([dbc.Input(placeholder="Company", id="company_0"),]),
-                            dbc.ListGroupItem([dcc.Dropdown(list(config["user"]), "Daniel", disabled=True, id="user_0" ,style={"width" : "100px"}),]),
-                            dbc.ListGroupItem([dcc.Dropdown(list(config["targets"]), "Daniel", disabled=True, id="target_0" ,style={"width" : "100px"}),]),
-                            dbc.ListGroupItem([dcc.DatePickerSingle(date=date.today(), id="date_0", display_format='D-M-Y'),]),
-                            dbc.ListGroupItem([dbc.Input(placeholder="10,30", id="amount_0")]),
-                            dbc.ListGroupItem([dbc.Button("Remove", color="danger", className="me-1", id={'type': 'remove-btn', 'index': 'rm_0'} , disabled=True, n_clicks=0)]),
+                            dbc.ListGroupItem([dcc.Dropdown(list(config["categorys"]), value="Lebensmittel", id={'type': 'category', 'index': 'category_0'}, style={"width" : "150px"}),]),
+                            dbc.ListGroupItem([dbc.Input(placeholder="Company", value=None, id={'type': 'company', 'index': 'company_0'}),]),
+                            dbc.ListGroupItem([dcc.Dropdown(list(config["user"]), value="Daniel", disabled=True, id={'type': 'user', 'index': 'user_0'} ,style={"width" : "100px"}),]),
+                            dbc.ListGroupItem([dcc.Dropdown(list(config["targets"]), value="Daniel", disabled=True, id={'type': 'target', 'index': 'target_0'} ,style={"width" : "100px"}),]),
+                            dbc.ListGroupItem([dcc.DatePickerSingle(date=date.today(), id={'type': 'date', 'index': 'date_0'}, display_format='D-M-Y'),]),
+                            dbc.ListGroupItem([dbc.Input(placeholder="10,30", value=None, id={'type': 'amount', 'index': 'amount_0'})]),
+                            dbc.ListGroupItem([dbc.Button("Remove", color="danger", className="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=True, n_clicks=0)]),
                         ],
                         horizontal=True,
                         id="list-group"   
@@ -270,60 +270,101 @@ app.layout = dbc.Container( children=[
 ]
 )
 
-@app.callback(
-    Output("bank-body", "children"),
-    Output("data-store", "data"),
-    Input("bank-submit", "n_clicks"),
-    Input("bank-update", "n_clicks"),
-    Input("bank-delete", "n_clicks"),
-    Input("bank-add", "n_clicks"),
-    Input({"type" : "remove-btn", "index": ALL}, "n_clicks"),
-    State("bank-body", "children"),
-    State("data-store", "data")
-)
-
-def update_rows(submit, update, delete, add_clicks, state, child, data):
-    trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
-
-    df = pd.DataFrame(data["table"])
-
-    match trigger:
-        case "bank-add":
-            new_row = pd.DataFrame(data["base_element"])
-            new_row = new_row.set_index(pd.Index([df.shape[0]]))
-            df = pd.concat([df, new_row])
-        case trigger if "{" in trigger  and "rm" in json.loads(trigger)["index"]:
-            trigger = json.loads(trigger)["index"]
-            del_col = int(trigger.split("_")[1])
-            df = df.drop([del_col])
-        case "bank-delete":
-            delete_data(data)
-        case "bank-submit":
-            add_data(data, "cost")
-        case "bank-update":
-            update_data(data)
-
-    # build ui table from data
+def table2child(table, child):
+    df = pd.DataFrame(table)
     tmp_element = child[0]
     tmp_child = []
     for idx, row in df.iterrows():
         for col_idx, column in enumerate(tmp_element["props"]["children"]):
-            tmp_id = tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"]
-            if type(tmp_id) == type({}) and tmp_id["type"] == "remove-btn":
-                tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"] = {'type': 'remove-btn', 'index': "rm_" + str(idx)}
+            tmp_id = tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"]["index"]
+            tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"]["index"].split("_")[0] += str(idx)
+            if "remove" in tmp_id:
                 if df.shape[0] == 1:
                     tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["disabled"] = True
                 else:
                     tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["disabled"] = False
                 continue
-            else:
-                tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"].split("_")[0] += str(idx)
-            
-            tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["value"] = df[tmp_id.split("_")[0]].values[idx]
+            value = df[tmp_id.split("_")[0]].values[idx]
+            tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["value"] = value
+        tmp_cat = tmp_element["props"]["children"][0]["props"]["children"][0]["props"]["value"]
+        tmp_comp = tmp_element["props"]["children"][1]["props"]["children"][0]["props"]["value"]
+        tmp_user = tmp_element["props"]["children"][2]["props"]["children"][0]["props"]["value"]
+        tmp_target = tmp_element["props"]["children"][3]["props"]["children"][0]["props"]["value"]
+        tmp_date = tmp_element["props"]["children"][4]["props"]["children"][0]["props"]["value"]
+        tmp_amount = tmp_element["props"]["children"][5]["props"]["children"][0]["props"]["value"]
+        logging.info(f"Row: {idx}, Cat: {tmp_cat}, Comp: {tmp_comp}, User: {tmp_user}, Target: {tmp_target}, Date: {tmp_date}, Amount: {tmp_amount}")
         tmp_child.append(tmp_element)
+    return tmp_child
+
+def child2table(child):
+    df = {}
+    for row in child:
+        for col in row["props"]["children"][:-1]:
+            element = col["props"]["children"][0]["props"]
+            tmp_key = element["id"]["type"]
+            if not tmp_key in list(df.keys()):
+                df[tmp_key] = []
+            match tmp_key:
+                case "date":
+                    df[tmp_key].append(element["date"])
+                case _:
+                    if  not "value" in list(element.keys()):
+                        df[tmp_key].append(element["placeholder"])
+                    else:   
+                        df[tmp_key].append(element["value"])
+
+    return pd.DataFrame(df)
+
+"""
+Callback that creates table from datastore and stores all changes made to the table items by the user
+"""
+@app.callback(
+    Output("bank-body", "children"),
+    Input({"type" : "remove-btn", "index": ALL}, "n_clicks"),
+    Input("bank-add", "n_clicks"),
+    State("bank-body", "children"),
+    # Input("bank-body", "children"),
+    State("data-store", "data"),
+    # Input({"type" : "category", "index": ALL}, "value"),
+    # Input({"type" : "company", "index": ALL}, "value"),
+    # Input({"type" : "user", "index": ALL}, "value"),
+    # Input({"type" : "target", "index": ALL}, "value"),
+    # Input({"type" : "date", "index": ALL}, "date"),
+    # Input({"type" : "amount", "index": ALL}, "value"),
+    
+    
+)
+
+def update_rows(remove_btn, new_row_clicks, child, data):
+
+    raw_trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
+
+    df = child2table(child)
+    if "{" in raw_trigger:
+        trigger = json.loads(raw_trigger)["index"]
         
-    data["table"] = df.to_dict(orient="list")
-    return [tmp_child, data]
+        match trigger:
+            case trigger if "remove" in trigger:
+                del_col = int(trigger.split("_")[1])
+                df = df.drop([del_col])
+                df = df.set_index(pd.Index(list(range(0, df.shape[0]))))
+    else:
+        match raw_trigger:
+            case "bank-add":
+                new_row = pd.DataFrame(data["base_element"])
+                new_row = new_row.set_index(pd.Index([df.shape[0]]))
+                df = pd.concat([df, new_row])
+    # build ui table from data 
+    test_child = table2child(df, child)
+
+
+    test_df = child2table(test_child)
+
+    if test_df.equals(df) == False:
+        logging.warning("Something went wrong")
+        logging.warning(f"Input: {df}")
+        logging.warning(f"Output: {test_df}")
+    return test_child
         
 @app.callback(
     Output("inc-ls-loading", "children"),
