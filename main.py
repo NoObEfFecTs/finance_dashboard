@@ -276,21 +276,26 @@ def table2child(table, child):
     tmp_child = []
     for idx, row in df.iterrows():
         for col_idx, column in enumerate(tmp_element["props"]["children"]):
-            tmp_id = tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"]["index"]
+            tmp_id = tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"]["index"].split("_")[0]
             tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"]["index"].split("_")[0] += str(idx)
-            if "remove" in tmp_id:
-                if df.shape[0] == 1:
-                    tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["disabled"] = True
-                else:
-                    tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["disabled"] = False
-                continue
-            value = df[tmp_id.split("_")[0]].values[idx]
-            tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["value"] = value
+            match tmp_id:
+                case "remove-btn":
+
+                    if df.shape[0] == 1:
+                        tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["disabled"] = True
+                    else:
+                        tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["disabled"] = False
+                case "date":
+                    value = df[tmp_id].values[idx]
+                    tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["date"] = value
+                case _:
+                    value = df[tmp_id].values[idx]
+                    tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["value"] = value
         tmp_cat = tmp_element["props"]["children"][0]["props"]["children"][0]["props"]["value"]
         tmp_comp = tmp_element["props"]["children"][1]["props"]["children"][0]["props"]["value"]
         tmp_user = tmp_element["props"]["children"][2]["props"]["children"][0]["props"]["value"]
         tmp_target = tmp_element["props"]["children"][3]["props"]["children"][0]["props"]["value"]
-        tmp_date = tmp_element["props"]["children"][4]["props"]["children"][0]["props"]["value"]
+        tmp_date = tmp_element["props"]["children"][4]["props"]["children"][0]["props"]["date"]
         tmp_amount = tmp_element["props"]["children"][5]["props"]["children"][0]["props"]["value"]
         logging.info(f"Row: {idx}, Cat: {tmp_cat}, Comp: {tmp_comp}, User: {tmp_user}, Target: {tmp_target}, Date: {tmp_date}, Amount: {tmp_amount}")
         tmp_child.append(tmp_element)
