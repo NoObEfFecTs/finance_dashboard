@@ -56,18 +56,20 @@ else:
 
 title = dbc.Row(
     dbc.Col(html.H2("Financial Information Daniel Fischer"),
-    width=6)
+    width=12,
+    style={"text-align": "center"}
+    ),
 )
 
 primary_row = dbc.Row(
     [       
-        dbc.Col(dbc.Button("Add Income", color="primary", id="income-btn", className="me-1"), md=2, xs=12),
-        dbc.Col(dbc.Button("Add/Update Cost", color="primary", id="bank-btn", className="me-1"), md=2, xs=12),
-        # dbc.Col(dcc.Dropdown(list(config["times"]), "this month", id='dd-times', disabled=False, clearable=False), md=3 ,xs=12),
-        dbc.Col(dcc.DatePickerSingle(date=datetime(start_year, start_month, 1), id="start-date", display_format='D-M-Y'), md=2, xs=12),
-        dbc.Col(dcc.DatePickerSingle(date=datetime(end_year, end_month, 1) + timedelta(days=-1),id="end-date", display_format='D-M-Y'), md=2, xs=12),
+        dbc.Col(dbc.Button("Add Income", color="primary", id="income-btn", className="me-1"), xxl=2, md=3, sm=6, xs=12),
+        dbc.Col(dbc.Button("Add/Update Cost", color="primary", id="bank-btn", className="me-1"), xxl=2, md=3, sm=6, xs=12),
+        dbc.Col(dcc.DatePickerSingle(date=datetime(start_year, start_month, 1), id="start-date", display_format='D-M-Y'), xxl=2, md=3, sm=6, xs=12),
+        dbc.Col(dcc.DatePickerSingle(date=datetime(end_year, end_month, 1) + timedelta(days=-1),id="end-date", display_format='D-M-Y'), xxl=2, md=3, sm=6, xs=12),
+        dbc.Col(dbc.Button("Year Overview", color="primary", id="year-btn", className="me-1"), xxl=2, md=3, sm=6, xs=12),
+
     ],
-    align="center",
 )
 
 secondary_row = dbc.Row(
@@ -123,6 +125,28 @@ storage = dcc.Store(
             "amount" : [None]
         },
     }
+)
+
+graph_modal = html.Div(
+    [
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Graphs"), close_button=True),
+                dbc.ModalBody([
+                    dcc.Dropdown(options=config["months"], value=config["val_months"], multi=True, clearable=False, id='dd-year-month-diag', disabled=False),
+                    dbc.Row(html.Div([dcc.Graph(id="overview-months")], id="overview_month_box"),),
+                    dcc.Dropdown(options={"2021" : "2021", "2022" : "2022"}, value=["2021"], multi=True, clearable=False, id='dd-year-line-diag', disabled=False),
+                    dbc.Row(html.Div([dcc.Graph(id="overview-years")], id="overview_years_box"),),
+                ]),
+            
+            ],
+            id="overview-modal",
+            centered=True,
+            is_open=False,
+            fullscreen="xxl-down",
+            size="xl"
+        ),
+    ]
 )
 
 income_modal = html.Div(
@@ -200,11 +224,12 @@ base_element = dbc.Row([
         dbc.Col(dbc.Input(placeholder="10,30", value=None, id={'type': 'amount', 'index': 'amount_0'}, style={"min-width" : "100px", "padding" : "2px"})),
         dbc.Col(dbc.Button("Remove", color="danger", className="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=True, n_clicks=0, style={"padding" : "2px"}))
     ],
-    style = {"padding" : "10px",
-            "border": "2px solid rgba(0, 151, 19, 0.3)",
+    style = {"padding" : "5px",
+            "border": "2px solid rgba(0, 0, 0, 0.3)",
             "border-radius": "5px",
-            "background-color": "rgba(0, 151, 19, 0.3)",
-            "opacity": 1.0}
+            "margin" : "10px",
+            "opacity": 1.0
+    }
 ),
 
 bank_modal = html.Div(
@@ -216,7 +241,7 @@ bank_modal = html.Div(
     
                     *base_element
                 ],
-                id = "bank-body"
+                id = "bank-body",
                 ),                
                 dbc.ModalFooter(dbc.Row([
                     dbc.Col(dbc.Button(
@@ -226,7 +251,7 @@ bank_modal = html.Div(
                         n_clicks=0
                     )),
                     dbc.Col(dbc.Button(
-                        "New Row",
+                        "Add Row",
                         id="bank-add",
                         className="ms-2",
                         n_clicks=0
@@ -267,7 +292,8 @@ app.layout = dbc.Container( children=[
             primary_row,
             secondary_row,
             income_modal,
-            bank_modal
+            bank_modal,
+            graph_modal
         ],
         width=12,
     ),
@@ -291,13 +317,15 @@ def table2child(table, child):
             dbc.Col(dcc.Dropdown(list(config["targets"]), value=row.target, disabled=True, id={'type': 'target', 'index': f'target_{idx}'} ,style={"min-width" : "100px", "padding" : "2px"})),
             dbc.Col(dcc.DatePickerSingle(date=row.date, id={'type': 'date', 'index': f'date_{idx}'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
             dbc.Col(dbc.Input(placeholder="10,30", value=row.amount, id={'type': 'amount', 'index': f'amount_{idx}'}, style={"min-width" : "100px", "padding" : "2px"})),
-            dbc.Col(dbc.Button("Remove", color="danger", className="me-1", id={'type': 'remove-btn', 'index': f'remove-btn_{idx}'} , disabled=disab, n_clicks=0, style={"padding" : "2px"}))
+            dbc.Col(dbc.Button("Remove-Row", color="danger", className="me-1", id={'type': 'remove-btn', 'index': f'remove-btn_{idx}'} , disabled=disab, n_clicks=0, style={"padding" : "2px"}))
             ],
-            style = {"padding" : "3px",
-                    "border": "2px solid rgba(0, 151, 19, 0.3)",
+            style = {"padding" : "10px",
+                    "border": "2px solid rgba(0, 0, 0, 0.3)",
                     "border-radius": "5px",
-                    "background-color": "rgba(0, 151, 19, 0.3)",
-                    "opacity": 1.0}
+                    "opacity": 1.0,
+                    "margin" : "10px"
+                    },
+                    
         ),
         tmp_child.append(*ele)
         ele = None
@@ -363,14 +391,6 @@ def update_rows(remove_btn, new_row_clicks, child, data):
                 df = pd.concat([df, new_row])
     # build ui table from data 
     test_child = table2child(df, child)
-
-
-    test_df = pd.DataFrame({})
-
-    if test_df.equals(df) == False:
-        logging.warning("Something went wrong")
-        logging.warning(f"Input: {df}")
-        logging.warning(f"Output: {test_df}")
     return test_child
         
 @app.callback(
@@ -427,6 +447,104 @@ def open_inc_modal(inc_clicks, submit_clicks):
             return False
         case _:
             return False
+        
+@app.callback(
+        Output("overview-months", "figure"),
+        Output("overview-years", "figure"),
+        Input("overview-modal", "is_open")
+)
+
+def create_overview(is_open):
+    data = get_monthly_data()
+    bar_fig = px.bar(data, x="month", y="amount", color="category", labels={"amount": "Betrag [€]", "month" : "Monate"})
+    bar_fig["layout"]["title"] = "Monthly Overview"
+    bar_fig["layout"]["font"]["size"] = 14
+    bar_fig.update_traces(width=0.5)
+    bar_fig.update_layout(
+        xaxis=dict(
+            showline=True,
+            showgrid=False,
+            showticklabels=True,
+            linecolor='rgb(204, 204, 204)',
+            linewidth=2,
+            ticks='outside',
+            tickfont=dict(
+                family='Arial',
+                size=12,
+                color='rgb(82, 82, 82)',
+            ),
+        ),
+        yaxis=dict(
+            showgrid=False,
+            # zeroline=False,
+            showline=True,
+            showticklabels=True,
+            linecolor='rgb(204, 204, 204)',
+            ticks='outside',
+            tickfont=dict(
+                family='Arial',
+                size=12,
+                color='rgb(82, 82, 82)',
+            ),
+        ),
+        plot_bgcolor='white',
+    )
+
+    data = get_year_data()
+    line_fig = px.line(data, x="month", y="amount", color="year", symbol="year", labels={"amount": "Betrag [€]", "months" : "Monate"})
+    line_fig["layout"]["title"] = "Yearly Overview"
+    line_fig["layout"]["font"]["size"] = 14
+    line_fig.update_layout(
+        xaxis=dict(
+            showline=True,
+            showgrid=False,
+            showticklabels=True,
+            linecolor='rgb(204, 204, 204)',
+            linewidth=2,
+            ticks='outside',
+            tickfont=dict(
+                family='Arial',
+                size=12,
+                color='rgb(82, 82, 82)',
+            ),
+        ),
+        yaxis=dict(
+            showgrid=False,
+            # zeroline=False,
+            showline=True,
+            showticklabels=True,
+            linecolor='rgb(204, 204, 204)',
+            ticks='outside',
+            tickfont=dict(
+                family='Arial',
+                size=12,
+                color='rgb(82, 82, 82)',
+            ),
+        ),
+        # autosize=False,
+        # margin=dict(
+        #     autoexpand=False,
+        #     l=100,
+        #     r=20,
+        #     t=110,
+        # ),
+        # showlegend=False,
+        plot_bgcolor='white'
+    )
+    return [bar_fig, line_fig]
+        
+@app.callback(
+    Output("overview-modal", "is_open"),
+    Input("year-btn", "n_clicks"),
+)
+
+def open_overview_modal(open_clicks):
+    trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
+    match trigger:
+        case "year-btn":
+            return True
+        case _:
+            return False
 
 @app.callback(
     Output("graph1", "figure"),
@@ -450,86 +568,86 @@ def open_inc_modal(inc_clicks, submit_clicks):
 
 )
 def generate_chart(start_date, end_date, inc_sub, start_dat, end_dat):
-        tmp_start = date(int(start_dat.split('-')[0]), int(start_dat.split('-')[1]), int(start_dat.split('-')[2][:2]))
-        tmp_end = date(int(end_dat.split('-')[0]), int(end_dat.split('-')[1]), int(end_dat.split('-')[2][:2]))
+    tmp_start = date(int(start_dat.split('-')[0]), int(start_dat.split('-')[1]), int(start_dat.split('-')[2][:2]))
+    tmp_end = date(int(end_dat.split('-')[0]), int(end_dat.split('-')[1]), int(end_dat.split('-')[2][:2]))
 
-        if (tmp_end -tmp_start).days < 0:
-            tmp_end = date(int(start_dat.split('-')[0]), (int(start_dat.split('-')[1])+1)%12, 1) + timedelta(days=-1)
-            end_date = "-".join([str(tmp_end.year), str(tmp_end.month), str(tmp_end.day)])
+    if (tmp_end -tmp_start).days < 0:
+        tmp_end = date(int(start_dat.split('-')[0]), (int(start_dat.split('-')[1])+1)%12, 1) + timedelta(days=-1)
+        end_date = "-".join([str(tmp_end.year), str(tmp_end.month), str(tmp_end.day)])
 
 
-        if tmp_start == None or tmp_end == None:
-            start= datetime(date.today().year, date.today().month, 1)
-            end = datetime(date.today().year, date.today().month + 1, 1) + timedelta(days=-1)
-            time = f"range(start: {start.strftime('%Y')}-{start.strftime('%m')}-{start.strftime('%d')}T11:00:00Z, stop: {end.strftime('%Y')}-{end.strftime('%m')}-{end.strftime('%d')}T13:00:00Z)"
-        else:
-            
-            time = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
-
-        # costs, income = read_data(time)
-        costs = {}
-        income = {}
+    if tmp_start == None or tmp_end == None:
+        start= datetime(date.today().year, date.today().month, 1)
+        end = datetime(date.today().year, date.today().month + 1, 1) + timedelta(days=-1)
+        time = f"range(start: {start.strftime('%Y')}-{start.strftime('%m')}-{start.strftime('%d')}T11:00:00Z, stop: {end.strftime('%Y')}-{end.strftime('%m')}-{end.strftime('%d')}T13:00:00Z)"
+    else:
         
-        if "result" in income.keys():
-            income.pop("result")
-        if "table" in income.keys():
-            income.pop("table")
-        if "result" in costs.keys():
-            costs.pop("result")
-        if "table" in costs.keys():
-            costs.pop("table")
-        
-        df = pd.DataFrame(costs)
+        time = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
 
-        if df.empty:
-            fig_all = px.pie()
-            figs = [fig_all] * 6
-            return figs + 6* [True] + [end_date]
+    # costs, income = read_data(time)
+    costs = {}
+    income = {}
+    
+    if "result" in income.keys():
+        income.pop("result")
+    if "table" in income.keys():
+        income.pop("table")
+    if "result" in costs.keys():
+        costs.pop("result")
+    if "table" in costs.keys():
+        costs.pop("table")
+    
+    df = pd.DataFrame(costs)
 
-        cats = ["Lebensmittel", "Finanzen", "Wohnung", "Versicherungen"]
+    if df.empty:
+        fig_all = px.pie()
+        figs = [fig_all] * 6
+        return figs + 6* [True] + [end_date]
 
-        fig_all = px.pie(df, values='amount', names='category')
-        fig_all["layout"]["title"] = f"Alles {df.sum().amount.round(2)}€"
-        fig_all["layout"]["font"]["size"] = 14
-        fig_all.update_traces(textposition='inside', textinfo='value')
+    cats = ["Lebensmittel", "Finanzen", "Wohnung", "Versicherungen"]
 
-        i=0
-        sum = df[df["category"] == cats[i]].sum().amount.round(2)
-        fig_groc = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
-        fig_groc["layout"]["title"] = f"{cats[i]} {sum}€"
-        fig_groc["layout"]["font"]["size"] = 14
-        fig_groc.update_traces(textposition='inside', textinfo='value')
+    fig_all = px.pie(df, values='amount', names='category')
+    fig_all["layout"]["title"] = f"Alles {df.sum().amount.round(2)}€"
+    fig_all["layout"]["font"]["size"] = 14
+    fig_all.update_traces(textposition='inside', textinfo='value')
 
-        i=1
-        sum=df[df["category"] == cats[i]].sum().amount.round(2)
-        fig_fin = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
-        fig_fin["layout"]["title"] = f"{cats[i]} {sum}€"
-        fig_fin["layout"]["font"]["size"] = 14
-        fig_fin.update_traces(textposition='inside', textinfo='value')
+    i=0
+    sum = df[df["category"] == cats[i]].sum().amount.round(2)
+    fig_groc = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
+    fig_groc["layout"]["title"] = f"{cats[i]} {sum}€"
+    fig_groc["layout"]["font"]["size"] = 14
+    fig_groc.update_traces(textposition='inside', textinfo='value')
 
-        i=2
-        sum = df[df["category"] == cats[i]].sum().amount.round(2)
-        fig_elek = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
-        fig_elek["layout"]["title"] = f"{cats[i]} {sum}€"
-        fig_elek["layout"]["font"]["size"] = 14
-        fig_elek.update_traces(textposition='inside', textinfo='value')
+    i=1
+    sum=df[df["category"] == cats[i]].sum().amount.round(2)
+    fig_fin = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
+    fig_fin["layout"]["title"] = f"{cats[i]} {sum}€"
+    fig_fin["layout"]["font"]["size"] = 14
+    fig_fin.update_traces(textposition='inside', textinfo='value')
 
-        i=3
-        sum=df[df["category"] == cats[i]].sum().amount.round(2)
-        fig_vers = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
-        fig_vers["layout"]["title"] = f"{cats[i]} {sum}€"
-        fig_vers["layout"]["font"]["size"] = 14
-        fig_vers.update_traces(textposition='inside', textinfo='value')
+    i=2
+    sum = df[df["category"] == cats[i]].sum().amount.round(2)
+    fig_elek = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
+    fig_elek["layout"]["title"] = f"{cats[i]} {sum}€"
+    fig_elek["layout"]["font"]["size"] = 14
+    fig_elek.update_traces(textposition='inside', textinfo='value')
 
-        sum=df[df["category"].isin(cats) == False].sum().amount.round(2)
-        fig_sonst = px.pie(df[df["category"].isin(cats) == False], values='amount', names='company')
-        fig_sonst["layout"]["title"] = f"Sonstiges {sum}€"
-        fig_sonst["layout"]["font"]["size"] = 14
-        fig_sonst.update_traces(textposition='inside', textinfo='value')
+    i=3
+    sum=df[df["category"] == cats[i]].sum().amount.round(2)
+    fig_vers = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
+    fig_vers["layout"]["title"] = f"{cats[i]} {sum}€"
+    fig_vers["layout"]["font"]["size"] = 14
+    fig_vers.update_traces(textposition='inside', textinfo='value')
 
-        return [fig_all, fig_groc, fig_fin, fig_elek, fig_vers, fig_sonst] + 6* [False] + [end_date]
+    sum=df[df["category"].isin(cats) == False].sum().amount.round(2)
+    fig_sonst = px.pie(df[df["category"].isin(cats) == False], values='amount', names='company')
+    fig_sonst["layout"]["title"] = f"Sonstiges {sum}€"
+    fig_sonst["layout"]["font"]["size"] = 14
+    fig_sonst.update_traces(textposition='inside', textinfo='value')
+
+    return [fig_all, fig_groc, fig_fin, fig_elek, fig_vers, fig_sonst] + 6* [False] + [end_date]
 
 
 if __name__ == "__main__":
-    # app.run_server(debug=False)
     app.run_server(host='localhost', port=8050, debug=True, use_debugger=True, use_reloader=True)
+     # app.run_server(debug=False)
