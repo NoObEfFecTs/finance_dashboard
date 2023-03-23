@@ -190,26 +190,31 @@ items = [
     dbc.DropdownMenuItem("Second"),
 ]
 
+
+base_element = dbc.Row([
+        dbc.Col(dcc.Dropdown(list(config["categorys"]), value="Lebensmittel", id={'type': 'category', 'index': 'category_0'}, style={"width" : "150px"}), style={"min-width": "150px", "padding" : "2px"}),
+        dbc.Col(dbc.Input(placeholder="Company", value=None, id={'type': 'company', 'index': 'company_0'}, style={"min-width": "100px", "padding" : "2px"})),
+        dbc.Col(dcc.Dropdown(list(config["user"]), value="Daniel", disabled=True, id={'type': 'user', 'index': 'user_0'} ,style={"min-width" : "100px", "padding" : "2px"})),
+        dbc.Col(dcc.Dropdown(list(config["targets"]), value="Daniel", disabled=True, id={'type': 'target', 'index': 'target_0'} ,style={"min-width" : "100px", "padding" : "2px"})),
+        dbc.Col(dcc.DatePickerSingle(date=date.today(), id={'type': 'date', 'index': 'date_0'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
+        dbc.Col(dbc.Input(placeholder="10,30", value=None, id={'type': 'amount', 'index': 'amount_0'}, style={"min-width" : "100px", "padding" : "2px"})),
+        dbc.Col(dbc.Button("Remove", color="danger", className="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=True, n_clicks=0, style={"padding" : "2px"}))
+    ],
+    style = {"padding" : "10px",
+            "border": "2px solid rgba(0, 151, 19, 0.3)",
+            "border-radius": "5px",
+            "background-color": "rgba(0, 151, 19, 0.3)",
+            "opacity": 1.0}
+),
+
 bank_modal = html.Div(
     [
         dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("Read Data from bank account"), close_button=True),
                 dbc.ModalBody([
-                    dbc.ListGroup(
-                        
-                        [
-                            dbc.ListGroupItem([dcc.Dropdown(list(config["categorys"]), value="Lebensmittel", id={'type': 'category', 'index': 'category_0'}, style={"width" : "150px"}),]),
-                            dbc.ListGroupItem([dbc.Input(placeholder="Company", value=None, id={'type': 'company', 'index': 'company_0'}),]),
-                            dbc.ListGroupItem([dcc.Dropdown(list(config["user"]), value="Daniel", disabled=True, id={'type': 'user', 'index': 'user_0'} ,style={"width" : "100px"}),]),
-                            dbc.ListGroupItem([dcc.Dropdown(list(config["targets"]), value="Daniel", disabled=True, id={'type': 'target', 'index': 'target_0'} ,style={"width" : "100px"}),]),
-                            dbc.ListGroupItem([dcc.DatePickerSingle(date=date.today(), id={'type': 'date', 'index': 'date_0'}, display_format='D-M-Y'),]),
-                            dbc.ListGroupItem([dbc.Input(placeholder="10,30", value=None, id={'type': 'amount', 'index': 'amount_0'})]),
-                            dbc.ListGroupItem([dbc.Button("Remove", color="danger", className="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=True, n_clicks=0)]),
-                        ],
-                        horizontal=True,
-                        id="list-group"   
-                    ),
+    
+                    *base_element
                 ],
                 id = "bank-body"
                 ),                
@@ -272,40 +277,37 @@ app.layout = dbc.Container( children=[
 
 def table2child(table, child):
     df = pd.DataFrame(table)
-    tmp_element = child[0]
     tmp_child = []
     for idx, row in df.iterrows():
-        for col_idx, column in enumerate(tmp_element["props"]["children"]):
-            tmp_id = tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"]["index"].split("_")[0]
-            tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["id"]["index"].split("_")[0] += str(idx)
-            match tmp_id:
-                case "remove-btn":
+        if df.shape[0] > 1:
+            disab = False
+        else:
+            disab = True
 
-                    if df.shape[0] == 1:
-                        tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["disabled"] = True
-                    else:
-                        tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["disabled"] = False
-                case "date":
-                    value = df[tmp_id].values[idx]
-                    tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["date"] = value
-                case _:
-                    value = df[tmp_id].values[idx]
-                    tmp_element["props"]["children"][col_idx]["props"]["children"][0]["props"]["value"] = value
-        tmp_cat = tmp_element["props"]["children"][0]["props"]["children"][0]["props"]["value"]
-        tmp_comp = tmp_element["props"]["children"][1]["props"]["children"][0]["props"]["value"]
-        tmp_user = tmp_element["props"]["children"][2]["props"]["children"][0]["props"]["value"]
-        tmp_target = tmp_element["props"]["children"][3]["props"]["children"][0]["props"]["value"]
-        tmp_date = tmp_element["props"]["children"][4]["props"]["children"][0]["props"]["date"]
-        tmp_amount = tmp_element["props"]["children"][5]["props"]["children"][0]["props"]["value"]
-        logging.info(f"Row: {idx}, Cat: {tmp_cat}, Comp: {tmp_comp}, User: {tmp_user}, Target: {tmp_target}, Date: {tmp_date}, Amount: {tmp_amount}")
-        tmp_child.append(tmp_element)
+        ele = dbc.Row([
+            dbc.Col(dcc.Dropdown(list(config["categorys"]), value=row.category, id={'type': 'category', 'index': f'category_{idx}'}, style={"width" : "150px"}), style={"min-width": "150px", "padding" : "2px"}),
+            dbc.Col(dbc.Input(placeholder="Company", value=row.company, id={'type': 'company', 'index': f'company_{idx}'}, style={"min-width": "100px", "padding" : "2px"})),
+            dbc.Col(dcc.Dropdown(list(config["user"]), value=row.user, disabled=True, id={'type': 'user', 'index': f'user_{idx}'} ,style={"min-width" : "100px", "padding" : "2px"})),
+            dbc.Col(dcc.Dropdown(list(config["targets"]), value=row.target, disabled=True, id={'type': 'target', 'index': f'target_{idx}'} ,style={"min-width" : "100px", "padding" : "2px"})),
+            dbc.Col(dcc.DatePickerSingle(date=row.date, id={'type': 'date', 'index': f'date_{idx}'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
+            dbc.Col(dbc.Input(placeholder="10,30", value=row.amount, id={'type': 'amount', 'index': f'amount_{idx}'}, style={"min-width" : "100px", "padding" : "2px"})),
+            dbc.Col(dbc.Button("Remove", color="danger", className="me-1", id={'type': 'remove-btn', 'index': f'remove-btn_{idx}'} , disabled=disab, n_clicks=0, style={"padding" : "2px"}))
+            ],
+            style = {"padding" : "3px",
+                    "border": "2px solid rgba(0, 151, 19, 0.3)",
+                    "border-radius": "5px",
+                    "background-color": "rgba(0, 151, 19, 0.3)",
+                    "opacity": 1.0}
+        ),
+        tmp_child.append(*ele)
+        ele = None
     return tmp_child
 
 def child2table(child):
     df = {}
     for row in child:
         for col in row["props"]["children"][:-1]:
-            element = col["props"]["children"][0]["props"]
+            element = col["props"]["children"]["props"]
             tmp_key = element["id"]["type"]
             if not tmp_key in list(df.keys()):
                 df[tmp_key] = []
@@ -363,7 +365,7 @@ def update_rows(remove_btn, new_row_clicks, child, data):
     test_child = table2child(df, child)
 
 
-    test_df = child2table(test_child)
+    test_df = pd.DataFrame({})
 
     if test_df.equals(df) == False:
         logging.warning("Something went wrong")
@@ -464,7 +466,9 @@ def generate_chart(start_date, end_date, inc_sub, start_dat, end_dat):
             
             time = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
 
-        costs, income = read_data(time)
+        # costs, income = read_data(time)
+        costs = {}
+        income = {}
         
         if "result" in income.keys():
             income.pop("result")
@@ -528,4 +532,4 @@ def generate_chart(start_date, end_date, inc_sub, start_dat, end_dat):
 
 if __name__ == "__main__":
     # app.run_server(debug=False)
-    app.run_server(host='192.168.188.20', port=8050, debug=True, use_debugger=True, use_reloader=True)
+    app.run_server(host='localhost', port=8050, debug=True, use_debugger=True, use_reloader=True)
