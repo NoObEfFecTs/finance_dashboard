@@ -13,10 +13,10 @@
         "Company 1"
     ],
     "user" : [
-        "Daniel"
-    ],
-    "targets" : [
-        "Daniel"
+        "Daniel",
+        "Martin",
+        "Alexander",
+        "Helga"
     ],
     "db_conf" : {
         "org" : "iobroker",

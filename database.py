@@ -51,26 +51,13 @@ def add_data(data, type):
     else:
         pass
 
-def get_monthly_data():
-
+def gen_test_data() -> pd.DataFrame:
+    years = np.linspace(start=2010,stop=2030, num=21)
     categories = ["Lebensmittel", "Bus/Bahn", "Wohnung", "Bücher", "Versicherungen"]
     months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
 
     data_points = 3
 
-    test_data = []
-    
-    for ele in months:
-        for i in range(0, data_points):
-            test_ele = {"month" : ele, "category": random.choice(categories), "amount": random.randint(100, 1300)}
-            test_data.append(test_ele)
-
-    return pd.DataFrame(test_data)
-
-def get_year_data():
-    years = np.linspace(start=2010,stop=2030, num=21)
-    months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
-    
     lines = 5
 
     tmp_years = []
@@ -81,13 +68,33 @@ def get_year_data():
             tmp_years.append(year)
 
     test_data = []
+
     for year in tmp_years:
         for ele in months:
-            test_ele = {"year" : year, "month" : ele, "amount": random.randint(1000, 3000)}
-            test_data.append(test_ele)
-    
+            for i in range(0, data_points):
+                test_ele = {"year": int(year) , "month" : ele, "category": random.choice(categories), "amount": random.randint(100, 1300)}
+                test_data.append(test_ele)
+    data = pd.DataFrame(test_data)
+    data.sort_values("year")
 
-    return pd.DataFrame(test_data)
+    return data
+
+def get_monthly_data(year):
+    
+    data = gen_test_data()
+
+    tmp_data = data.query(f"year == {year}")
+    return tmp_data
+
+def get_year_data(years):
+
+    years = [int(year) for year in years]
+
+    data = gen_test_data()
+
+    tmp_data = data.query(f"year in {years}").groupby(["month", "year"]).sum()
+
+    return tmp_data
 
 def read_data(timerange):
     with InfluxDBClient(url=url, token=token, org=org) as client:

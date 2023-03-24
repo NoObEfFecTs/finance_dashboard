@@ -55,7 +55,7 @@ else:
 
 
 title = dbc.Row(
-    dbc.Col(html.H2("Financial Information Daniel Fischer"),
+    dbc.Col(html.H2("Financial Information"),
     width=12,
     style={"text-align": "center"}
     ),
@@ -63,11 +63,11 @@ title = dbc.Row(
 
 primary_row = dbc.Row(
     [       
-        dbc.Col(dbc.Button("Add Income", color="primary", id="income-btn", className="me-1"), xxl=2, md=3, sm=6, xs=12),
-        dbc.Col(dbc.Button("Add/Update Cost", color="primary", id="bank-btn", className="me-1"), xxl=2, md=3, sm=6, xs=12),
+        dbc.Col(dbc.Button("Add Income", color="primary", id="income-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
+        dbc.Col(dbc.Button("Add/Update Cost", color="primary", id="bank-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
         dbc.Col(dcc.DatePickerSingle(date=datetime(start_year, start_month, 1), id="start-date", display_format='D-M-Y'), xxl=2, md=3, sm=6, xs=12),
         dbc.Col(dcc.DatePickerSingle(date=datetime(end_year, end_month, 1) + timedelta(days=-1),id="end-date", display_format='D-M-Y'), xxl=2, md=3, sm=6, xs=12),
-        dbc.Col(dbc.Button("Year Overview", color="primary", id="year-btn", className="me-1"), xxl=2, md=3, sm=6, xs=12),
+        dbc.Col(dbc.Button("Year Overview", color="primary", id="year-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
 
     ],
 )
@@ -104,38 +104,15 @@ secondary_row = dbc.Row(
     align="center",
 )
 
-storage = dcc.Store(
-    id= "data-store",
-    storage_type="memory",
-    data = {
-        "table" : {
-            "category" : [None],
-            "company" : [None],
-            "user" : ["Daniel"],
-            "target" : ["Daniel"],
-            "date" : [f"{date.today():%Y-%m-%d}"],
-            "amount" : [None]
-        },
-        "base_element" : {
-            "category" : [None],
-            "company" : [None],
-            "user" : ["Daniel"],
-            "target" : ["Daniel"],
-            "date" : [f"{date.today():%Y-%m-%d}"],
-            "amount" : [None]
-        },
-    }
-)
-
 graph_modal = html.Div(
     [
         dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("Graphs"), close_button=True),
                 dbc.ModalBody([
-                    dcc.Dropdown(options=config["months"], value=config["val_months"], multi=True, clearable=False, id='dd-year-month-diag', disabled=False),
+                    dcc.Dropdown(options={"2021" : "2021", "2022" : "2022"}, value="2022", multi=False, clearable=False, id='dd-year-bar-fig', disabled=False),
                     dbc.Row(html.Div([dcc.Graph(id="overview-months")], id="overview_month_box"),),
-                    dcc.Dropdown(options={"2021" : "2021", "2022" : "2022"}, value=["2021"], multi=True, clearable=False, id='dd-year-line-diag', disabled=False),
+                    dcc.Dropdown(options={"2021" : "2021", "2022" : "2022"}, value=["2021"], multi=True, clearable=False, id='dd-year-line-fig', disabled=False),
                     dbc.Row(html.Div([dcc.Graph(id="overview-years")], id="overview_years_box"),),
                 ]),
             
@@ -170,8 +147,6 @@ income_modal = html.Div(
                                 ),
                                 html.P("Choose Buyer:"),
                                 dcc.Dropdown(list(config["user"]), "Daniel", id='dd-inc-user', disabled=True),
-                                html.P("Choose Target:"),
-                                dcc.Dropdown(list(config["targets"]), "Daniel", id='dd-inc-target', disabled=True),
                                 html.P("Add Amount:"),
                                 dcc.Input(
                                     id="inc-amount",
@@ -187,7 +162,7 @@ income_modal = html.Div(
                                 width=12,
                             )
                         ],
-                        className="g-3",
+                        class_name="g-3",
                     ),
                 ]),
                 
@@ -195,7 +170,7 @@ income_modal = html.Div(
                     dbc.Button(
                         "Submit",
                         id="inc-Submit",
-                        className="ms-auto",
+                        class_name="ms-auto",
                         n_clicks=0,
                     )
                 ),
@@ -216,13 +191,12 @@ items = [
 
 
 base_element = dbc.Row([
-        dbc.Col(dcc.Dropdown(list(config["categorys"]), value="Lebensmittel", id={'type': 'category', 'index': 'category_0'}, style={"width" : "150px"}), style={"min-width": "150px", "padding" : "2px"}),
+        dbc.Col(dcc.Dropdown(list(config["categorys"]), clearable=False, value="Lebensmittel", id={'type': 'category', 'index': 'category_0'}, style={"width" : "150px"}), style={"min-width": "150px", "padding" : "2px"}),
         dbc.Col(dbc.Input(placeholder="Company", value=None, id={'type': 'company', 'index': 'company_0'}, style={"min-width": "100px", "padding" : "2px"})),
-        dbc.Col(dcc.Dropdown(list(config["user"]), value="Daniel", disabled=True, id={'type': 'user', 'index': 'user_0'} ,style={"min-width" : "100px", "padding" : "2px"})),
-        dbc.Col(dcc.Dropdown(list(config["targets"]), value="Daniel", disabled=True, id={'type': 'target', 'index': 'target_0'} ,style={"min-width" : "100px", "padding" : "2px"})),
+        dbc.Col(dcc.Dropdown(list(config["user"]), clearable=False, value="Helga", disabled=False, id={'type': 'user', 'index': 'user_0'} ,style={"min-width" : "100px", "padding" : "2px"})),
         dbc.Col(dcc.DatePickerSingle(date=date.today(), id={'type': 'date', 'index': 'date_0'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
         dbc.Col(dbc.Input(placeholder="10,30", value=None, id={'type': 'amount', 'index': 'amount_0'}, style={"min-width" : "100px", "padding" : "2px"})),
-        dbc.Col(dbc.Button("Remove", color="danger", className="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=True, n_clicks=0, style={"padding" : "2px"}))
+        dbc.Col(dbc.Button("Remove-Row", color="danger", class_name="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=True, n_clicks=0, style={"padding" : "2px"}))
     ],
     style = {"padding" : "5px",
             "border": "2px solid rgba(0, 0, 0, 0.3)",
@@ -247,32 +221,37 @@ bank_modal = html.Div(
                     dbc.Col(dbc.Button(
                         "Read data",
                         id="bank-read",
-                        className="ms-2",
-                        n_clicks=0
+                        class_name="me-1",
+                        n_clicks=0,
+                        color="info"
                     )),
                     dbc.Col(dbc.Button(
                         "Add Row",
                         id="bank-add",
-                        className="ms-2",
-                        n_clicks=0
+                        class_name="me-1",
+                        n_clicks=0,
+                        color="primary"
                     )),
                     dbc.Col(dbc.Button(
                         "Submit",
                         id="bank-submit",
-                        className="ms-auto",
-                        n_clicks=0
+                        class_name="me-1",
+                        n_clicks=0,
+                        color="success"
                     )),
                     dbc.Col(dbc.Button(
                         "Delete",
                         id="bank-delete",
-                        className="ms-auto",
-                        n_clicks=0
+                        class_name="me-1",
+                        n_clicks=0,
+                        color="danger"
                     )),
                     dbc.Col(dbc.Button(
                         "Update",
                         id="bank-update",
-                        className="ms-auto",
-                        n_clicks=0
+                        class_name="me-1",
+                        n_clicks=0,
+                        color="warning"
                     )),
                 ])
                 ),
@@ -297,7 +276,6 @@ app.layout = dbc.Container( children=[
         ],
         width=12,
     ),
-    storage
 ]
 )
 
@@ -311,13 +289,12 @@ def table2child(table, child):
             disab = True
 
         ele = dbc.Row([
-            dbc.Col(dcc.Dropdown(list(config["categorys"]), value=row.category, id={'type': 'category', 'index': f'category_{idx}'}, style={"width" : "150px"}), style={"min-width": "150px", "padding" : "2px"}),
+            dbc.Col(dcc.Dropdown(list(config["categorys"]), clearable=False, value=row.category, id={'type': 'category', 'index': f'category_{idx}'}, style={"width" : "150px"}), style={"min-width": "150px", "padding" : "2px"}),
             dbc.Col(dbc.Input(placeholder="Company", value=row.company, id={'type': 'company', 'index': f'company_{idx}'}, style={"min-width": "100px", "padding" : "2px"})),
-            dbc.Col(dcc.Dropdown(list(config["user"]), value=row.user, disabled=True, id={'type': 'user', 'index': f'user_{idx}'} ,style={"min-width" : "100px", "padding" : "2px"})),
-            dbc.Col(dcc.Dropdown(list(config["targets"]), value=row.target, disabled=True, id={'type': 'target', 'index': f'target_{idx}'} ,style={"min-width" : "100px", "padding" : "2px"})),
+            dbc.Col(dcc.Dropdown(list(config["user"]), value=row.user, disabled=True, id={'type': 'user', 'index': f'user_{idx}'}, clearable=False ,style={"min-width" : "100px", "padding" : "2px"})),
             dbc.Col(dcc.DatePickerSingle(date=row.date, id={'type': 'date', 'index': f'date_{idx}'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
             dbc.Col(dbc.Input(placeholder="10,30", value=row.amount, id={'type': 'amount', 'index': f'amount_{idx}'}, style={"min-width" : "100px", "padding" : "2px"})),
-            dbc.Col(dbc.Button("Remove-Row", color="danger", className="me-1", id={'type': 'remove-btn', 'index': f'remove-btn_{idx}'} , disabled=disab, n_clicks=0, style={"padding" : "2px"}))
+            dbc.Col(dbc.Button("Remove-Row", color="danger", class_name="me-1", id={'type': 'remove-btn', 'index': f'remove-btn_{idx}'} , disabled=disab, n_clicks=0, style={"padding" : "2px"}))
             ],
             style = {"padding" : "10px",
                     "border": "2px solid rgba(0, 0, 0, 0.3)",
@@ -359,7 +336,6 @@ Callback that creates table from datastore and stores all changes made to the ta
     Input("bank-add", "n_clicks"),
     State("bank-body", "children"),
     # Input("bank-body", "children"),
-    State("data-store", "data"),
     # Input({"type" : "category", "index": ALL}, "value"),
     # Input({"type" : "company", "index": ALL}, "value"),
     # Input({"type" : "user", "index": ALL}, "value"),
@@ -370,7 +346,7 @@ Callback that creates table from datastore and stores all changes made to the ta
     
 )
 
-def update_rows(remove_btn, new_row_clicks, child, data):
+def update_rows(remove_btn, new_row_clicks, child):
 
     raw_trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
 
@@ -386,7 +362,7 @@ def update_rows(remove_btn, new_row_clicks, child, data):
     else:
         match raw_trigger:
             case "bank-add":
-                new_row = pd.DataFrame(data["base_element"])
+                new_row = df.head(1)
                 new_row = new_row.set_index(pd.Index([df.shape[0]]))
                 df = pd.concat([df, new_row])
     # build ui table from data 
@@ -451,12 +427,21 @@ def open_inc_modal(inc_clicks, submit_clicks):
 @app.callback(
         Output("overview-months", "figure"),
         Output("overview-years", "figure"),
-        Input("overview-modal", "is_open")
+        Input("overview-modal", "is_open"),
+        Input("dd-year-bar-fig", "value"),
+        Input("dd-year-line-fig", "value"),
+        State("dd-year-bar-fig", "value"),
+        State("dd-year-line-fig", "value")
 )
 
-def create_overview(is_open):
-    data = get_monthly_data()
-    bar_fig = px.bar(data, x="month", y="amount", color="category", labels={"amount": "Betrag [€]", "month" : "Monate"})
+def create_overview(is_open, bar_val_dd, line_val_dd, bar_val_stat, line_val_stat):
+
+    bar_val = bar_val_stat
+    line_val = line_val_stat
+
+
+    data = get_monthly_data(bar_val)
+    bar_fig = px.bar(data, x="month", y="amount", barmode="stack", color="category", labels={"amount": "Betrag [€]", "month" : "Monate"})
     bar_fig["layout"]["title"] = "Monthly Overview"
     bar_fig["layout"]["font"]["size"] = 14
     bar_fig.update_traces(width=0.5)
@@ -490,7 +475,7 @@ def create_overview(is_open):
         plot_bgcolor='white',
     )
 
-    data = get_year_data()
+    data = get_year_data(line_val)
     line_fig = px.line(data, x="month", y="amount", color="year", symbol="year", labels={"amount": "Betrag [€]", "months" : "Monate"})
     line_fig["layout"]["title"] = "Yearly Overview"
     line_fig["layout"]["font"]["size"] = 14
@@ -649,5 +634,5 @@ def generate_chart(start_date, end_date, inc_sub, start_dat, end_dat):
 
 
 if __name__ == "__main__":
-    app.run_server(host='localhost', port=8050, debug=True, use_debugger=True, use_reloader=True)
-     # app.run_server(debug=False)
+    # app.run_server(host='localhost', port=8050, debug=True, use_debugger=True, use_reloader=True)
+     app.run_server(debug=True)
