@@ -22,15 +22,15 @@ def parse_data():
     # values = {"Person" : "Helga"}
     # data = data.fillna(value=values)
     data.loc[:,"Geschäft"] = None
-    cats = data["Kategorie"].unique()
-    print(f"cats = {cats}")
-    crit = f"Kategorie == 'Lebensmittel'"
-    lebensmittel = data.query(crit)
+    # cats = data["Kategorie"].unique()
+    # print(f"cats = {cats}")
+    # crit = f"Kategorie == 'Lebensmittel'"
+    # lebensmittel = data.query(crit)
 
-    high_price = lebensmittel.query("Betrag > 45")
-    shops = ["Rewe", "Lidl", "Kaufland", "Edeka"]
-    stores = [random.choice(shops) for x in range(high_price.shape[0])]
-    high_price.loc[:,"Geschäft"] = stores
+    # high_price = lebensmittel.query("Betrag > 45")
+    # shops = ["Rewe", "Lidl", "Kaufland", "Edeka"]
+    # stores = [random.choice(shops) for x in range(high_price.shape[0])]
+    # high_price.loc[:,"Geschäft"] = stores
 
     data.to_csv("Data.csv", index=False)
 
