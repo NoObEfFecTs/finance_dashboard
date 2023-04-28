@@ -12,7 +12,7 @@ import plotly.express as px
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-local = True
+local = False
 
 if local:
     with open("conf.json") as f:
@@ -37,9 +37,16 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 external_scripts = [{'src': 'https://cdn.plot.ly/plotly-locale-de-latest.js'}]
 
 
-app = dash.Dash(__name__, external_scripts=external_scripts,external_stylesheets=[dbc.themes.GRID, dbc.themes.MORPH], assets_folder="./assets")
+app = dash.Dash(__name__, external_scripts=external_scripts, external_stylesheets=[dbc.themes.GRID, dbc.themes.BOOTSTRAP], assets_folder="./assets")
 
+app.title = "Financial Infos"
+app.name = "fin_info"
+app.css.config.serve_locally = True
+app.scripts.config.serve_locally = True
+# set logger to debug level
+app.logger.setLevel(logging.INFO)
 server = app.server
+
 start_month = date.today().month
 start_year = date.today().year
 end_month = date.today().month
@@ -635,4 +642,5 @@ def generate_chart(start_date, end_date, inc_sub, start_dat, end_dat):
 
 if __name__ == "__main__":
     # app.run_server(host='localhost', port=8050, debug=True, use_debugger=True, use_reloader=True)
-     app.run_server(debug=True)
+    app.run_server(debug=True)
+    # app.run()

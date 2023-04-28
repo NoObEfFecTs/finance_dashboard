@@ -7,7 +7,7 @@ from datetime import *
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-local = True
+local = False
 if local:
     with open("conf.json") as f:
         config = json.load(f)
@@ -88,7 +88,8 @@ def get_year_data(years):
 
     data = gen_test_data()
 
-    tmp_data = data.query(f"year in {years}").groupby(["month", "year"]).sum()
+    tmp_data = data.query(f"year in {years}").groupby(["month", "year"])
+    tmp_data = tmp_data.sum()
 
     for idx, row in tmp_data.iterrows():
         res["month"].append(idx[0])

@@ -1,5 +1,7 @@
+name="plotly_ui"
+
 function do_build {
-    docker build -t cost_ui .
+    docker build -t $name .
 }
 
 function do_run {
@@ -7,9 +9,9 @@ function do_run {
 	--rm -it \
 	-d \
 	-p 8050:8050 \
-	--name=cost_ui \
+	--name=$name \
 	-v $(pwd):/app \
-	cost_ui
+	$name
 }
 
 task=$1

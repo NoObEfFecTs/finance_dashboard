@@ -22,7 +22,7 @@
         "org" : "iobroker",
         "bucket" : "finance",
         "token" : "QeqOJZ5Xnpwj05uwu3JlV36F8qfKq8EYDArJsgv88dVA2NA5hs6w1pTJk0BPdlvijaP4bPD16iTaO1zhrccmvw==",
-	"url" : "http://192.168.188.47:8086"
+	"url" : "http://ui-py:8050"
 	},
     "val_months" : ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
     "months" : {

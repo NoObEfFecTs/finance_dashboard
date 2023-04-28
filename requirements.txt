@@ -1,5 +1,6 @@
 influxdb-client==1.33.0
-dash==2.6.1
+dash==2.9.3
+flask==2.2.2
 dash_auth==1.4.1
 dash_daq==0.5.0
 dash-bootstrap-components
