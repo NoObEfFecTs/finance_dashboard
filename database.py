@@ -56,20 +56,10 @@ def gen_test_data() -> pd.DataFrame:
     categories = ["Lebensmittel", "Bus/Bahn", "Wohnung", "Bücher", "Versicherungen"]
     months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
 
-    data_points = 3
-
-    lines = 5
-
-    tmp_years = []
-
-    while len(tmp_years) < lines:
-        year = random.choice(years)
-        if not year in tmp_years:
-            tmp_years.append(year)
-
+    data_points = 4
     test_data = []
 
-    for year in tmp_years:
+    for year in years:
         for ele in months:
             for i in range(0, data_points):
                 test_ele = {"year": int(year) , "month" : ele, "category": random.choice(categories), "amount": random.randint(100, 1300)}
@@ -90,11 +80,22 @@ def get_year_data(years):
 
     years = [int(year) for year in years]
 
+    res = {
+        "month" : [],
+        "year" : [],
+        "amount" : []
+    }
+
     data = gen_test_data()
 
     tmp_data = data.query(f"year in {years}").groupby(["month", "year"]).sum()
 
-    return tmp_data
+    for idx, row in tmp_data.iterrows():
+        res["month"].append(idx[0])
+        res["year"].append(idx[1])
+        res["amount"].append(int(row.amount))
+        
+    return res
 
 def read_data(timerange):
     with InfluxDBClient(url=url, token=token, org=org) as client:

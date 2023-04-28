@@ -37,7 +37,7 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 external_scripts = [{'src': 'https://cdn.plot.ly/plotly-locale-de-latest.js'}]
 
 
-app = dash.Dash(__name__, external_scripts=external_scripts,external_stylesheets=[dbc.themes.GRID, dbc.themes.BOOTSTRAP], assets_folder="./assets")
+app = dash.Dash(__name__, external_scripts=external_scripts,external_stylesheets=[dbc.themes.GRID, dbc.themes.MORPH], assets_folder="./assets")
 
 server = app.server
 start_month = date.today().month
