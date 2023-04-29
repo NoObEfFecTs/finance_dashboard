@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import logging
+import time as tm
 from datetime import *
 
 from database import *
@@ -12,14 +13,12 @@ import plotly.express as px
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-local = False
-
-if local:
-    with open("conf.json") as f:
-        config = json.load(f)
-else:
-
+if os.path.exists("/app/conf.json"):
     with open("/app/conf.json") as f:
+        config = json.load(f)
+
+else:
+    with open("conf.json") as f:
         config = json.load(f)
 
 token = config["db_conf"]["token"]
@@ -57,9 +56,6 @@ if start_month == 12:
     end_month = 1
 else:
     end_month += 1
-
-
-
 
 title = dbc.Row(
     dbc.Col(html.H2("Financial Information"),
@@ -269,6 +265,42 @@ bank_modal = html.Div(
         )
     ])
 
+del_modal = html.Div(
+    [
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Do you really want to delete the data?"), close_button=False),
+                dbc.ModalBody([
+                    dbc.Row(
+                        [
+                            dbc.Col(dbc.Button(
+                                "YES",
+                                id="del-yes",
+                                class_name="me-1",
+                                n_clicks=0,
+                                color="success"
+                            )),
+                            dbc.Col(dbc.Button(
+                                "NO",
+                                id="del-no",
+                                class_name="me-1",
+                                n_clicks=0,
+                                color="danger"
+                            )),
+                        ]
+                    )
+                    
+                    
+                ],
+                ),                
+            ],
+            id="del-modal",
+            centered=True,
+            is_open=False,
+            size="md"
+        )
+    ])
+
 app.layout = dbc.Container( children=[
     dbc.Col(
         [
@@ -277,7 +309,8 @@ app.layout = dbc.Container( children=[
             secondary_row,
             income_modal,
             bank_modal,
-            graph_modal
+            graph_modal,
+            del_modal
         ],
         width=12,
     ),
@@ -335,7 +368,7 @@ def child2table(child):
 @app.callback(
     Output("cost-loading", "children"),
     Input("bank-submit", "n_clicks"),
-    Input("bank-delete", "n_clicks"),
+    Input("del-yes", "n_clicks"),
     State("bank-body", "children"),
 )
 
@@ -346,7 +379,7 @@ def change_data(sub_click, del_click, child):
         case "bank-submit":
             add_data(data, "cost")
 
-        case "bank-delete":
+        case "del-yes":
             delete_data(data)
 
     return None
@@ -360,7 +393,7 @@ Callback that creates table from datastore and stores all changes made to the ta
     Input({"type" : "remove-btn", "index": ALL}, "n_clicks"),
     Input("bank-add", "n_clicks"),
     Input("bank-submit", "n_clicks"),
-    Input("bank-delete", "n_clicks"),
+    Input("del-yes", "n_clicks"),
     Input("bank-read", "n_clicks"),
     State("bank-body", "children"),
     State("start-date", "date"),
@@ -380,10 +413,10 @@ def update_rows(remove_btn, new_row_clicks, sub_click, delete_click, read_click,
     if tmp_start == None or tmp_end == None:
         start= datetime(date.today().year, date.today().month, 1)
         end = datetime(date.today().year, date.today().month + 1, 1) + timedelta(days=-1)
-        time = f"range(start: {start.strftime('%Y')}-{start.strftime('%m')}-{start.strftime('%d')}T11:00:00Z, stop: {end.strftime('%Y')}-{end.strftime('%m')}-{end.strftime('%d')}T13:00:00Z)"
+        trange = f"range(start: {start.strftime('%Y')}-{start.strftime('%m')}-{start.strftime('%d')}T11:00:00Z, stop: {end.strftime('%Y')}-{end.strftime('%m')}-{end.strftime('%d')}T13:00:00Z)"
     else:
         
-        time = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
+        trange = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
 
     raw_trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
 
@@ -405,9 +438,10 @@ def update_rows(remove_btn, new_row_clicks, sub_click, delete_click, read_click,
                 df = pd.concat([df, new_row])
             case "bank-submit":
                 df = new_row
-            
+            case "del-yes":
+                df = new_row
             case "bank-read":
-                costs, income = read_data(time)
+                costs, income = read_data(trange)
                 if "result" in income.keys():
                     income.pop("result")
                 if "table" in income.keys():
@@ -450,16 +484,32 @@ def add_income(clicks, person, date, amount):
     Output("bank-modal", "is_open"),
     Input("bank-btn", "n_clicks"),
     Input("bank-submit", "n_clicks"),
+    Input("del-yes", "n_clicks"),
+    Input("del-no", "n_clicks"),
 )
 
-def open_bank_modal(bank_clicks, submit_clicks):
+def open_bank_modal(bank_clicks, submit_clicks, del_y, del_n):
     trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
 
     match trigger:
         case "bank-btn":
             return True
-        case "bank-Submit":
+        case _:
             return False
+        
+@app.callback(
+    Output("del-modal", "is_open"),
+    Input("bank-delete", "n_clicks"),
+    Input("del-yes", "n_clicks"),
+    Input("del-no", "n_clicks"),
+)
+
+def open_del_modal(del_clicks, y_clicks, n_clicks):
+    trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
+
+    match trigger:
+        case "bank-delete":
+            return True
         case _:
             return False
 
@@ -605,13 +655,22 @@ def open_overview_modal(open_clicks):
     Input("start-date", "date"),
     Input("end-date", "date"),
     Input("inc-Submit", "n_clicks"),
-    Input("bank-delete", "n_clicks"),
+    Input("del-yes", "n_clicks"),
     Input("bank-submit", "n_clicks"),
     State("start-date", "date"),
     State("end-date", "date")
 
 )
 def generate_chart(start_date, end_date, inc_sub, bank_del, bank_sub, start_dat, end_dat):
+
+    trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
+
+    match trigger:
+        case "del-yes":
+            tm.sleep(0.5)
+        case "bank-submit":
+            tm.sleep(0.5)
+
     tmp_start = date(int(start_dat.split('-')[0]), int(start_dat.split('-')[1]), int(start_dat.split('-')[2][:2]))
     tmp_end = date(int(end_dat.split('-')[0]), int(end_dat.split('-')[1]), int(end_dat.split('-')[2][:2]))
 
@@ -623,12 +682,12 @@ def generate_chart(start_date, end_date, inc_sub, bank_del, bank_sub, start_dat,
     if tmp_start == None or tmp_end == None:
         start= datetime(date.today().year, date.today().month, 1)
         end = datetime(date.today().year, date.today().month + 1, 1) + timedelta(days=-1)
-        time = f"range(start: {start.strftime('%Y')}-{start.strftime('%m')}-{start.strftime('%d')}T11:00:00Z, stop: {end.strftime('%Y')}-{end.strftime('%m')}-{end.strftime('%d')}T13:00:00Z)"
+        trange = f"range(start: {start.strftime('%Y')}-{start.strftime('%m')}-{start.strftime('%d')}T11:00:00Z, stop: {end.strftime('%Y')}-{end.strftime('%m')}-{end.strftime('%d')}T13:00:00Z)"
     else:
         
-        time = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
+        trange = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
 
-    costs, income = read_data(time)
+    costs, income = read_data(trange)
     # costs = {}
     # income = {}
     

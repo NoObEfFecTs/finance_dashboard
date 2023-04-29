@@ -1,4 +1,5 @@
 import logging
+import os
 import json
 import random
 import pandas as pd
@@ -7,15 +8,15 @@ from datetime import *
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-local = False
-if local:
-    with open("conf.json") as f:
-        config = json.load(f)
-else:
 
+if os.path.exists("/app/conf.json"):
     with open("/app/conf.json") as f:
         config = json.load(f)
 
+else:
+    with open("conf.json") as f:
+        config = json.load(f)
+    
 token = config["db_conf"]["token"]
 org = config["db_conf"]["org"]
 bucket = config["db_conf"]["bucket"]
@@ -41,9 +42,9 @@ def delete_data(data):
 
     client.close()
 
-def add_data(data, type):
+def add_data(data, c_class):
 
-    match type:
+    match c_class:
         case "inconme":
             with InfluxDBClient(url=url, token=token, org=org) as client:
                 for row in data:
@@ -126,8 +127,7 @@ def get_year_data(years):
 
     data = gen_test_data()
 
-    tmp_data = data.query(f"year in {years}").groupby(["month", "year"])
-    tmp_data = tmp_data.sum()
+    tmp_data = data.query(f"year in {years}").groupby(["month", "year"]).sum(numeric_only = True)
 
     for idx, row in tmp_data.iterrows():
         res["month"].append(idx[0])
