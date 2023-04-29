@@ -9,20 +9,16 @@
     ],
     "employer" : [
         "TU Dresden",
-        "HZDR",
-        "Company 1"
+        "HZDR"
     ],
     "user" : [
-        "Daniel",
-        "Martin",
-        "Alexander",
-        "Helga"
+        "Daniel"
     ],
     "db_conf" : {
         "org" : "iobroker",
         "bucket" : "finance",
         "token" : "QeqOJZ5Xnpwj05uwu3JlV36F8qfKq8EYDArJsgv88dVA2NA5hs6w1pTJk0BPdlvijaP4bPD16iTaO1zhrccmvw==",
-	"url" : "http://ui-py:8050"
+	"url" : "http://iobrokerpi:8086"
 	},
     "val_months" : ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
     "months" : {

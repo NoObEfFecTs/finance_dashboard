@@ -6,8 +6,8 @@ function do_build {
 
 function do_run {
     docker run \
-	--rm -it \
 	-d \
+	--restart:unless-stopped \
 	-p 8050:8050 \
 	--name=$name \
 	-v $(pwd):/app \

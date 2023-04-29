@@ -116,6 +116,11 @@ graph_modal = html.Div(
         dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("Graphs"), close_button=True),
+                dcc.Loading(
+                    id="cost-loading",
+                    children=[html.Div([html.Div(id="cost-ls-loading-output-2")])],
+                    type="circle",
+                ),
                 dbc.ModalBody([
                     dcc.Dropdown(options={"2021" : "2021", "2022" : "2022"}, value="2022", multi=False, clearable=False, id='dd-year-bar-fig', disabled=False),
                     dbc.Row(html.Div([dcc.Graph(id="overview-months")], id="overview_month_box"),),
@@ -200,7 +205,7 @@ items = [
 base_element = dbc.Row([
         dbc.Col(dcc.Dropdown(list(config["categorys"]), clearable=False, value="Lebensmittel", id={'type': 'category', 'index': 'category_0'}, style={"width" : "150px"}), style={"min-width": "150px", "padding" : "2px"}),
         dbc.Col(dbc.Input(placeholder="Company", value=None, id={'type': 'company', 'index': 'company_0'}, style={"min-width": "100px", "padding" : "2px"})),
-        dbc.Col(dcc.Dropdown(list(config["user"]), clearable=False, value="Helga", disabled=False, id={'type': 'user', 'index': 'user_0'} ,style={"min-width" : "100px", "padding" : "2px"})),
+        dbc.Col(dcc.Dropdown(list(config["user"]), clearable=False, value="Daniel", disabled=False, id={'type': 'user', 'index': 'user_0'} ,style={"min-width" : "100px", "padding" : "2px"})),
         dbc.Col(dcc.DatePickerSingle(date=date.today(), id={'type': 'date', 'index': 'date_0'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
         dbc.Col(dbc.Input(placeholder="10,30", value=None, id={'type': 'amount', 'index': 'amount_0'}, style={"min-width" : "100px", "padding" : "2px"})),
         dbc.Col(dbc.Button("Remove-Row", color="danger", class_name="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=True, n_clicks=0, style={"padding" : "2px"}))
@@ -240,7 +245,7 @@ bank_modal = html.Div(
                         color="primary"
                     )),
                     dbc.Col(dbc.Button(
-                        "Submit",
+                        "Submit/Update",
                         id="bank-submit",
                         class_name="me-1",
                         n_clicks=0,
@@ -252,13 +257,6 @@ bank_modal = html.Div(
                         class_name="me-1",
                         n_clicks=0,
                         color="danger"
-                    )),
-                    dbc.Col(dbc.Button(
-                        "Update",
-                        id="bank-update",
-                        class_name="me-1",
-                        n_clicks=0,
-                        color="warning"
                     )),
                 ])
                 ),
@@ -334,6 +332,26 @@ def child2table(child):
 
     return pd.DataFrame(df)
 
+@app.callback(
+    Output("cost-loading", "children"),
+    Input("bank-submit", "n_clicks"),
+    Input("bank-delete", "n_clicks"),
+    State("bank-body", "children"),
+)
+
+def change_data(sub_click, del_click, child):
+    trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
+    data = child2table(child)
+    match trigger:
+        case "bank-submit":
+            add_data(data, "cost")
+
+        case "bank-delete":
+            delete_data(data)
+
+    return None
+
+
 """
 Callback that creates table from datastore and stores all changes made to the table items by the user
 """
@@ -341,19 +359,31 @@ Callback that creates table from datastore and stores all changes made to the ta
     Output("bank-body", "children"),
     Input({"type" : "remove-btn", "index": ALL}, "n_clicks"),
     Input("bank-add", "n_clicks"),
+    Input("bank-submit", "n_clicks"),
+    Input("bank-delete", "n_clicks"),
+    Input("bank-read", "n_clicks"),
     State("bank-body", "children"),
-    # Input("bank-body", "children"),
-    # Input({"type" : "category", "index": ALL}, "value"),
-    # Input({"type" : "company", "index": ALL}, "value"),
-    # Input({"type" : "user", "index": ALL}, "value"),
-    # Input({"type" : "target", "index": ALL}, "value"),
-    # Input({"type" : "date", "index": ALL}, "date"),
-    # Input({"type" : "amount", "index": ALL}, "value"),
-    
-    
+    State("start-date", "date"),
+    State("end-date", "date") 
 )
 
-def update_rows(remove_btn, new_row_clicks, child):
+def update_rows(remove_btn, new_row_clicks, sub_click, delete_click, read_click, child, start_dat, end_dat):
+
+    tmp_start = date(int(start_dat.split('-')[0]), int(start_dat.split('-')[1]), int(start_dat.split('-')[2][:2]))
+    tmp_end = date(int(end_dat.split('-')[0]), int(end_dat.split('-')[1]), int(end_dat.split('-')[2][:2]))
+
+    if (tmp_end -tmp_start).days < 0:
+        tmp_end = date(int(start_dat.split('-')[0]), (int(start_dat.split('-')[1])+1)%12, 1) + timedelta(days=-1)
+        end_date = "-".join([str(tmp_end.year), str(tmp_end.month), str(tmp_end.day)])
+
+
+    if tmp_start == None or tmp_end == None:
+        start= datetime(date.today().year, date.today().month, 1)
+        end = datetime(date.today().year, date.today().month + 1, 1) + timedelta(days=-1)
+        time = f"range(start: {start.strftime('%Y')}-{start.strftime('%m')}-{start.strftime('%d')}T11:00:00Z, stop: {end.strftime('%Y')}-{end.strftime('%m')}-{end.strftime('%d')}T13:00:00Z)"
+    else:
+        
+        time = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
 
     raw_trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
 
@@ -367,11 +397,31 @@ def update_rows(remove_btn, new_row_clicks, child):
                 df = df.drop([del_col])
                 df = df.set_index(pd.Index(list(range(0, df.shape[0]))))
     else:
+        new_row = df.head(1)
+        new_row = new_row.set_index(pd.Index([df.shape[0]]))
         match raw_trigger:
+
             case "bank-add":
-                new_row = df.head(1)
-                new_row = new_row.set_index(pd.Index([df.shape[0]]))
                 df = pd.concat([df, new_row])
+            case "bank-submit":
+                df = new_row
+            
+            case "bank-read":
+                costs, income = read_data(time)
+                if "result" in income.keys():
+                    income.pop("result")
+                if "table" in income.keys():
+                    income.pop("table")
+                if "result" in costs.keys():
+                    costs.pop("result")
+                if "table" in costs.keys():
+                    costs.pop("table")
+                if not costs:
+                    df = new_row
+                else:
+                    df = pd.DataFrame(costs)
+            case "bank-delete":
+                df = new_row
     # build ui table from data 
     test_child = table2child(df, child)
     return test_child
@@ -555,11 +605,13 @@ def open_overview_modal(open_clicks):
     Input("start-date", "date"),
     Input("end-date", "date"),
     Input("inc-Submit", "n_clicks"),
+    Input("bank-delete", "n_clicks"),
+    Input("bank-submit", "n_clicks"),
     State("start-date", "date"),
     State("end-date", "date")
 
 )
-def generate_chart(start_date, end_date, inc_sub, start_dat, end_dat):
+def generate_chart(start_date, end_date, inc_sub, bank_del, bank_sub, start_dat, end_dat):
     tmp_start = date(int(start_dat.split('-')[0]), int(start_dat.split('-')[1]), int(start_dat.split('-')[2][:2]))
     tmp_end = date(int(end_dat.split('-')[0]), int(end_dat.split('-')[1]), int(end_dat.split('-')[2][:2]))
 
@@ -576,9 +628,9 @@ def generate_chart(start_date, end_date, inc_sub, start_dat, end_dat):
         
         time = f"range(start: {tmp_start.strftime('%Y')}-{tmp_start.strftime('%m')}-{tmp_start.strftime('%d')}T11:00:00Z, stop: {tmp_end.strftime('%Y')}-{tmp_end.strftime('%m')}-{tmp_end.strftime('%d')}T13:00:00Z)"
 
-    # costs, income = read_data(time)
-    costs = {}
-    income = {}
+    costs, income = read_data(time)
+    # costs = {}
+    # income = {}
     
     if "result" in income.keys():
         income.pop("result")
