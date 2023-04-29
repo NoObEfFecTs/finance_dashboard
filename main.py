@@ -68,10 +68,9 @@ primary_row = dbc.Row(
     [       
         dbc.Col(dbc.Button("Add Income", color="primary", id="income-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
         dbc.Col(dbc.Button("Add/Update Cost", color="primary", id="bank-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
+        dbc.Col(dbc.Button("Year Overview", color="primary", id="year-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
         dbc.Col(dcc.DatePickerSingle(date=datetime(start_year, start_month, 1), id="start-date", display_format='D-M-Y'), xxl=2, md=3, sm=6, xs=12),
         dbc.Col(dcc.DatePickerSingle(date=datetime(end_year, end_month, 1) + timedelta(days=-1),id="end-date", display_format='D-M-Y'), xxl=2, md=3, sm=6, xs=12),
-        dbc.Col(dbc.Button("Year Overview", color="primary", id="year-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
-
     ],
 )
 
@@ -707,48 +706,48 @@ def generate_chart(start_date, end_date, inc_sub, bank_del, bank_sub, start_dat,
         figs = [fig_all] * 6
         return figs + 6* [True] + [end_date]
 
-    cats = ["Lebensmittel", "Finanzen", "Wohnung", "Versicherungen"]
-
+    all_figs = []
+    hide_figs = []
+    
+    # generate chart for overview
     fig_all = px.pie(df, values='amount', names='category')
     fig_all["layout"]["title"] = f"Alles {df.sum().amount.round(2)}€"
     fig_all["layout"]["font"]["size"] = 14
     fig_all.update_traces(textposition='inside', textinfo='value')
 
-    i=0
-    sum = df[df["category"] == cats[i]].sum().amount.round(2)
-    fig_groc = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
-    fig_groc["layout"]["title"] = f"{cats[i]} {sum}€"
-    fig_groc["layout"]["font"]["size"] = 14
-    fig_groc.update_traces(textposition='inside', textinfo='value')
+    all_figs.append(fig_all)
+    hide_figs.append(False)
 
-    i=1
-    sum=df[df["category"] == cats[i]].sum().amount.round(2)
-    fig_fin = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
-    fig_fin["layout"]["title"] = f"{cats[i]} {sum}€"
-    fig_fin["layout"]["font"]["size"] = 14
-    fig_fin.update_traces(textposition='inside', textinfo='value')
+    cats = ["Lebensmittel", "Finanzen", "Wohnung", "Versicherungen"]
+    
+    # generate categorical charts    
+    for ele in cats:
+        sum = df[df["category"] == ele].sum().amount.round(2)
+        if sum == 0.0:
+            hide_figs.append(True)
+            tmp_fig = px.pie()
+        else:
+            hide_figs.append(False)
+            tmp_fig = px.pie(df[df["category"] == ele], values='amount', names='company')
+            tmp_fig["layout"]["title"] = f"{ele} {sum}€"
+            tmp_fig["layout"]["font"]["size"] = 14
+            tmp_fig.update_traces(textposition='inside', textinfo='value')
+        all_figs.append(tmp_fig)
 
-    i=2
-    sum = df[df["category"] == cats[i]].sum().amount.round(2)
-    fig_elek = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
-    fig_elek["layout"]["title"] = f"{cats[i]} {sum}€"
-    fig_elek["layout"]["font"]["size"] = 14
-    fig_elek.update_traces(textposition='inside', textinfo='value')
-
-    i=3
-    sum=df[df["category"] == cats[i]].sum().amount.round(2)
-    fig_vers = px.pie(df[df["category"] == cats[i]], values='amount', names='company')
-    fig_vers["layout"]["title"] = f"{cats[i]} {sum}€"
-    fig_vers["layout"]["font"]["size"] = 14
-    fig_vers.update_traces(textposition='inside', textinfo='value')
-
+    # generate chart for rest
     sum=df[df["category"].isin(cats) == False].sum().amount.round(2)
-    fig_sonst = px.pie(df[df["category"].isin(cats) == False], values='amount', names='company')
-    fig_sonst["layout"]["title"] = f"Sonstiges {sum}€"
-    fig_sonst["layout"]["font"]["size"] = 14
-    fig_sonst.update_traces(textposition='inside', textinfo='value')
+    if sum == 0.0:
+        hide_figs.append(True)
+        all_figs.append(px.pie())
+    else:
+        hide_figs.append(False)
+        fig_sonst = px.pie(df[df["category"].isin(cats) == False], values='amount', names='company')
+        fig_sonst["layout"]["title"] = f"Sonstiges {sum}€"
+        fig_sonst["layout"]["font"]["size"] = 14
+        fig_sonst.update_traces(textposition='inside', textinfo='value')
+        all_figs.append(fig_sonst)
 
-    return [fig_all, fig_groc, fig_fin, fig_elek, fig_vers, fig_sonst] + 6* [False] + [end_date]
+    return all_figs + hide_figs + [end_date]
 
 
 if __name__ == "__main__":
