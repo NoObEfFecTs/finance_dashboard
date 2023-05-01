@@ -13,13 +13,19 @@ import plotly.express as px
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+# mode to check if demo is needed
+mode = "prod"
+
 if os.path.exists("/app/conf.json"):
     with open("/app/conf.json") as f:
         config = json.load(f)
 
 else:
-    with open("conf.json") as f:
-        config = json.load(f)
+    if os.path.exists("conf.json"):
+        with open("conf.json") as f:
+            config = json.load(f)
+    else:
+        mode = "demo"
 
 token = config["db_conf"]["token"]
 org = config["db_conf"]["org"]
@@ -106,6 +112,14 @@ secondary_row = dbc.Row(
     align="center",
 )
 
+# get current options for overview modal
+years = get_years()
+opts = {}
+for year in years:
+    if not year in [opts.keys()]:
+        opts[year] = year
+val = years[-1]
+
 graph_modal = html.Div(
     [
         dbc.Modal(
@@ -117,9 +131,10 @@ graph_modal = html.Div(
                     type="circle",
                 ),
                 dbc.ModalBody([
-                    dcc.Dropdown(options={"2021" : "2021", "2022" : "2022"}, value="2022", multi=False, clearable=False, id='dd-year-bar-fig', disabled=False),
+                    
+                    dcc.Dropdown(options=opts, value=val, multi=False, clearable=False, id='dd-year-bar-fig', disabled=False),
                     dbc.Row(html.Div([dcc.Graph(id="overview-months")], id="overview_month_box"),),
-                    dcc.Dropdown(options={"2021" : "2021", "2022" : "2022"}, value=["2021"], multi=True, clearable=False, id='dd-year-line-fig', disabled=False),
+                    dcc.Dropdown(options=opts, value=[val], multi=True, clearable=False, id='dd-year-line-fig', disabled=False),
                     dbc.Row(html.Div([dcc.Graph(id="overview-years")], id="overview_years_box"),),
                 ]),
             
@@ -429,7 +444,7 @@ def update_rows(remove_btn, new_row_clicks, sub_click, delete_click, read_click,
                 df = df.drop([del_col])
                 df = df.set_index(pd.Index(list(range(0, df.shape[0]))))
     else:
-        new_row = df.head(1)
+        new_row = df.tail(1)
         new_row = new_row.set_index(pd.Index([df.shape[0]]))
         match raw_trigger:
 
