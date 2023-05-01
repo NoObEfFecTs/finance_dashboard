@@ -560,8 +560,12 @@ def create_overview(is_open, bar_val_dd, line_val_dd, bar_val_stat, line_val_sta
     bar_val = bar_val_stat
     line_val = line_val_stat
 
+    dates_in_order = pd.date_range(start='2022-01-01', end='2022-12-01', freq='MS')
+    months_in_order = dates_in_order.map(lambda x: x.month_name()).to_list()
 
     data = get_monthly_data(bar_val)
+    data.month = pd.Categorical(data.month, categories=months_in_order, ordered=True)
+    data = data.sort_values("month")
     bar_fig = px.bar(data, x="month", y="amount", barmode="stack", color="category", labels={"amount": "Betrag [€]", "month" : "Monate"})
     bar_fig["layout"]["title"] = "Monthly Overview"
     bar_fig["layout"]["font"]["size"] = 14
@@ -597,6 +601,8 @@ def create_overview(is_open, bar_val_dd, line_val_dd, bar_val_stat, line_val_sta
     )
 
     data = get_year_data(line_val)
+    data.month = pd.Categorical(data.month, categories=months_in_order, ordered=True)
+    data = data.sort_values("month")
     line_fig = px.line(data, x="month", y="amount", color="year", symbol="year", labels={"amount": "Betrag [€]", "months" : "Monate"})
     line_fig["layout"]["title"] = "Yearly Overview"
     line_fig["layout"]["font"]["size"] = 14

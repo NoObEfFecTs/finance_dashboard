@@ -165,6 +165,7 @@ def get_all_data():
     tmp_data["date"] = pd.to_datetime(tmp_data.date)
     tmp_data["month"] = tmp_data.date.dt.month_name()
     tmp_data["year"] = tmp_data.date.dt.year
+    tmp_data.sort_values("date")
 
     return tmp_data
 
@@ -224,7 +225,7 @@ def get_year_data(years):
         res["month"].append(idx[0])
         res["year"].append(idx[1])
         res["amount"].append(int(row.amount))
-        
+    res = pd.DataFrame(res)
     return res
 
 def read_data(timerange):
