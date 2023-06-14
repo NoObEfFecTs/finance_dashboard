@@ -10,12 +10,14 @@
         "Events",
         "Uni",
         "Abos",
-        "Bücher",
-        "Kleidung+Hygiene"
+        "Buecher",
+        "Kleidung+Hygiene",
+        "Baumarkt"
     ],
     "employer" : [
         "TU Dresden",
-        "HZDR"
+        "HZDR",
+        "Syntegon"
     ],
     "user" : [
         "Daniel"

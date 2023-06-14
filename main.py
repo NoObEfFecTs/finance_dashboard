@@ -337,14 +337,17 @@ def table2child(table, child):
     for idx, row in df.iterrows():
         if df.shape[0] > 1:
             disab = False
+            tmp_date = row.date
         else:
             disab = True
-
+            tmp_date = date.today()
+        cats = list(config["categorys"])
+        cats.sort()
         ele = dbc.Row([
-            dbc.Col(dcc.Dropdown(list(config["categorys"]), clearable=False, value=row.category, id={'type': 'category', 'index': f'category_{idx}'}, style={"width" : "150px"}), style={"min-width": "150px", "padding" : "2px"}),
+            dbc.Col(dcc.Dropdown(cats, clearable=False, value=row.category, id={'type': 'category', 'index': f'category_{idx}'}, style={"width" : "200px"}), style={"min-width": "200px", "padding" : "2px"}),
             dbc.Col(dbc.Input(placeholder="Company", value=row.company, id={'type': 'company', 'index': f'company_{idx}'}, style={"min-width": "100px", "padding" : "2px"})),
             dbc.Col(dcc.Dropdown(list(config["user"]), value=row.user, disabled=True, id={'type': 'user', 'index': f'user_{idx}'}, clearable=False ,style={"min-width" : "100px", "padding" : "2px"})),
-            dbc.Col(dcc.DatePickerSingle(date=row.date, id={'type': 'date', 'index': f'date_{idx}'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
+            dbc.Col(dcc.DatePickerSingle(date=tmp_date, id={'type': 'date', 'index': f'date_{idx}'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
             dbc.Col(dbc.Input(placeholder="10,30", value=row.amount, id={'type': 'amount', 'index': f'amount_{idx}'}, style={"min-width" : "100px", "padding" : "2px"})),
             dbc.Col(dbc.Button("Remove-Row", color="danger", class_name="me-1", id={'type': 'remove-btn', 'index': f'remove-btn_{idx}'} , disabled=disab, n_clicks=0, style={"padding" : "2px"}))
             ],
