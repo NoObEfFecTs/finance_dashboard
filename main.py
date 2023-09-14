@@ -471,6 +471,8 @@ def update_rows(remove_btn, new_row_clicks, sub_click, delete_click, read_click,
                     df = new_row
                 else:
                     df = pd.DataFrame(costs)
+                    df[["tmp_date"]] = df[["date"]].apply(pd.to_datetime)
+                    df = df.sort_values("tmp_date")
             case "bank-delete":
                 df = new_row
     # build ui table from data 
