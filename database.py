@@ -30,21 +30,51 @@ url = config["db_conf"]["url"]
 
 def delete_data(data):
     with InfluxDBClient(url=url, token=token, org=org) as client:
-        for idx, row in data.iterrows():
-            
-            date = row["date"]
-            person = row["user"]
-            company = row["company"]
-            category = row["category"]
-            amount = row["amount"]
-            mes = "cost"
-            year = int(date.split("-")[0])
-            month = int(date.split("-")[1])
-            day = int(date.split("-")[2])
-            start_tmp_date = datetime(year, month, day, 0, 0)
-            end_tmp_date = datetime(year, month, day, 23, 0)
-            delete_api = client.delete_api()
-            delete_api.delete(start_tmp_date, end_tmp_date, f'_measurement={mes} AND category={category} AND company={company}', bucket=bucket, org=org)
+        # for idx, row in data.iterrows():
+            # date = row["date"]
+            # person = row["user"]
+            # company = row["company"]
+            # category = row["category"]
+            # amount = row["amount"]
+            # mes = "cost"
+            # year = int(date.split("-")[0])
+            # month = int(date.split("-")[1])
+            # day = int(date.split("-")[2])
+            # start_tmp_date = datetime(year, month, day, 0, 0)
+            # end_tmp_date = datetime(year, month, day, 23, 0)
+            # delete_api = client.delete_api()
+            # delete_api.delete(start_tmp_date, end_tmp_date, f'_measurement={mes} AND category={category} AND company={company}', bucket=bucket, org=org)
+
+        date = data.date.to_string().split("  ")[-1]
+        user = data.user.to_string().split("  ")[-1]
+        company = data.company.to_string().split("  ")[-1]
+        category = data.category.to_string().split("  ")[-1]
+        amount = float(data.amount.to_string().replace(",", ".").split("  ")[-1])
+        mes = "cost"
+        year = int(date.split("-")[0])
+        month = int(date.split("-")[1])
+        day = int(date.split("-")[2])
+        start = datetime(year, month, day, 0, 0)
+        end = datetime(year, month, day, 23, 0)
+        delete_api = client.delete_api()
+       
+        trange = f"range(start: {start.strftime('%Y')}-{start.strftime('%m')}-{start.strftime('%d')}T11:00:00Z, stop: {end.strftime('%Y')}-{end.strftime('%m')}-{end.strftime('%d')}T13:00:00Z)"
+
+        tmp_start = f"{start.strftime('%Y')}-{start.strftime('%m')}-{start.strftime('%d')}T11:00:00Z"
+        tmp_end = f"{end.strftime('%Y')}-{end.strftime('%m')}-{end.strftime('%d')}T13:00:00Z"
+
+        # search_query = f'from(bucket: "finance") |> {trange}'
+
+        search_query = f'from(bucket: "finance") |> {trange} |> filter(fn:(r) => r.company == "{company}") |> filter(fn:(r) => r.category == "{category}") |> filter(fn:(r) => r.user == "{user}") |> filter(fn:(r) => r._value == {amount})'
+        # search_query = f'from(bucket: "finance") |> {trange} |> filter(fn:(r) => r.company == "{company}") |> filter(fn:(r) => r.category == "{category}") |> filter(fn:(r) => r.user == "{user}")'
+
+        result = client.query_api().query(org=org, query=search_query)
+        if result == []:
+            logging.info("No data to delete")
+        else:
+            vals = result[0].records[0].values
+            del_query = f'_measurement="{mes}" AND category="{category}" AND company="{company}" AND _value={amount}'
+            delete_api.delete(tmp_start, tmp_end, del_query, bucket=bucket, org=org)
 
     client.close()
 

@@ -1,0 +1,17 @@
+.container {
+    background-color : white;
+    color: black;
+}
+
+.div {
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.dash-graph {
+    background-color: grey;
+}
+
+.box {
+    background-color: grey;
+}

@@ -42,7 +42,8 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 external_scripts = [{'src': 'https://cdn.plot.ly/plotly-locale-de-latest.js'}]
 
 
-app = dash.Dash(__name__, external_scripts=external_scripts, external_stylesheets=[dbc.themes.GRID, dbc.themes.BOOTSTRAP], assets_folder="./assets")
+# app = dash.Dash(__name__, external_scripts=external_scripts, external_stylesheets=[dbc.themes.GRID, dbc.themes.DARKLY], assets_folder="./assets")
+app = dash.Dash(__name__, external_scripts=external_scripts, external_stylesheets=[dbc.themes.GRID, dbc.themes.SPACELAB], assets_folder="./assets")
 
 app.title = "Financial Infos"
 app.name = "fin_info"
@@ -66,50 +67,54 @@ else:
 title = dbc.Row(
     dbc.Col(html.H2("Financial Information"),
     width=12,
-    style={"text-align": "center"}
+    style={"text-align": "center"},
+    class_name="title-row"
     ),
 )
 
 primary_row = dbc.Row(
     [       
-        dbc.Col(dbc.Button("Add Income", color="primary", id="income-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
-        dbc.Col(dbc.Button("Add/Update Cost", color="primary", id="bank-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
-        dbc.Col(dbc.Button("Year Overview", color="primary", id="year-btn", class_name="me-1"), xxl=2, md=3, sm=6, xs=12),
-        dbc.Col(dcc.DatePickerSingle(date=datetime(start_year, start_month, 1), id="start-date", display_format='D-M-Y'), xxl=2, md=3, sm=6, xs=12),
-        dbc.Col(dcc.DatePickerSingle(date=datetime(end_year, end_month, 1) + timedelta(days=-1),id="end-date", display_format='D-M-Y'), xxl=2, md=3, sm=6, xs=12),
+        dbc.Col(dbc.Button("Add Income", color="primary", id="income-btn", class_name="me-1", style={"padding" : "10px"}), xxl=2, md=3, sm=6, xs=12, class_name="content-col"),
+        dbc.Col(dbc.Button("Add/Update Cost", color="primary", id="bank-btn", class_name="me-1", style={"padding" : "10px"}), xxl=2, md=3, sm=6, xs=12, class_name="content-col"),
+        dbc.Col(dbc.Button("Year Overview", color="primary", id="year-btn", class_name="me-1", style={"padding" : "10px"}), xxl=2, md=3, sm=6, xs=12, class_name="content-col"),
+        dbc.Col(dcc.DatePickerSingle(date=datetime(start_year, start_month, 1), id="start-date", display_format='D-M-Y', style={"padding" : "10px"}), xxl=2, md=3, sm=6, xs=12, class_name="content-col"),
+        dbc.Col(dcc.DatePickerSingle(date=datetime(end_year, end_month, 1) + timedelta(days=-1),id="end-date", display_format='D-M-Y', style={"padding" : "10px"}), xxl=2, md=3, sm=6, xs=12, class_name="content-col"),
     ],
-)
+    class_name="content-row"
+)   
 
 secondary_row = dbc.Row(
     [       
         # dbc.Col(dcc.Graph(id="graph1"), md=12, lg=6, xxl=4),
-        dbc.Col(html.Div([dcc.Graph(id="graph1")], id="g1_box"), md=12, lg=6, xxl=4),
+        dbc.Col(html.Div([dcc.Graph(id="graph1", className="pie-chart")], id="g1_box", className="graph-box"),md=12, lg=6, xxl=4, class_name="content-col"),
         # dbc.Spinner(spinner_style={"width": "3rem", "height": "3rem"}, id="spin_g1"),
         
         # dbc.Col(dcc.Graph(id="graph2"), md=12, lg=6, xxl=4),
-        dbc.Col(html.Div([dcc.Graph(id="graph2")], id="g2_box"), md=12, lg=6, xxl=4),
+        dbc.Col(html.Div([dcc.Graph(id="graph2", className="pie-chart")], id="g2_box", className="graph-box"), md=12, lg=6, xxl=4, class_name="content-col"),
         # dbc.Spinner(spinner_style={"width": "3rem", "height": "3rem"}, id="spin_g2"),
         
         # dbc.Col(dcc.Graph(id="graph3"), md=12, lg=6, xxl=4),
-        dbc.Col(html.Div([dcc.Graph(id="graph3")], id="g3_box"), md=12, lg=6, xxl=4),
+        dbc.Col(html.Div([dcc.Graph(id="graph3", className="pie-chart")], id="g3_box", className="graph-box"), md=12, lg=6, xxl=4, class_name="content-col"),
         # dbc.Spinner(spinner_style={"width": "3rem", "height": "3rem"}, id="spin_g3"),
 
         # dbc.Col(dcc.Graph(id="graph4"), md=12, lg=6, xxl=4),
-        dbc.Col(html.Div([dcc.Graph(id="graph4")], id="g4_box"), md=12, lg=6, xxl=4),
+        dbc.Col(html.Div([dcc.Graph(id="graph4", className="pie-chart")], id="g4_box", className="graph-box"), md=12, lg=6, xxl=4, class_name="content-col"),
         # dbc.Spinner(spinner_style={"width": "3rem", "height": "3rem"}, id="spin_g4"),
 
         # dbc.Col(dcc.Graph(id="graph5"), md=12, lg=6, xxl=4),
-        dbc.Col(html.Div([dcc.Graph(id="graph5")], id="g5_box"), md=12, lg=6, xxl=4),
+        dbc.Col(html.Div([dcc.Graph(id="graph5", className="pie-chart")], id="g5_box", className="graph-box"), md=12, lg=6, xxl=4, class_name="content-col"),
         # dbc.Spinner(spinner_style={"width": "3rem", "height": "3rem"}, id="spin_g5"),
 
         # dbc.Col(dcc.Graph(id="graph6"), md=12, lg=6, xxl=4),
-        dbc.Col(html.Div([dcc.Graph(id="graph6")], id="g6_box"), md=12, lg=6, xxl=4),
+        dbc.Col(html.Div([dcc.Graph(id="graph6", className="pie-chart")], id="g6_box", className="graph-box"), md=12, lg=6, xxl=4, class_name="content-col"),
         # dbc.Spinner(spinner_style={"width": "3rem", "height": "3rem"}, id="spin_g6"),
 
 
         # dbc.Col(dbc.Progress(label="XX€", value=25, striped=True, color="success", animated=True), width=12),
     ],
+    class_name="diag-row",
     align="center",
+    
 )
 
 # get current options for overview modal
@@ -130,8 +135,7 @@ graph_modal = html.Div(
                     children=[html.Div([html.Div(id="cost-ls-loading-output-2")])],
                     type="circle",
                 ),
-                dbc.ModalBody([
-                    
+                dbc.ModalBody([ 
                     dcc.Dropdown(options=opts, value=val, multi=False, clearable=False, id='dd-year-bar-fig', disabled=False),
                     dbc.Row(html.Div([dcc.Graph(id="overview-months")], id="overview_month_box"),),
                     dcc.Dropdown(options=opts, value=[val], multi=True, clearable=False, id='dd-year-line-fig', disabled=False),
@@ -218,7 +222,9 @@ base_element = dbc.Row([
         dbc.Col(dcc.Dropdown(list(config["user"]), clearable=False, value="Daniel", disabled=False, id={'type': 'user', 'index': 'user_0'} ,style={"min-width" : "100px", "padding" : "2px"})),
         dbc.Col(dcc.DatePickerSingle(date=date.today(), id={'type': 'date', 'index': 'date_0'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
         dbc.Col(dbc.Input(placeholder="10,30", value=None, id={'type': 'amount', 'index': 'amount_0'}, style={"min-width" : "100px", "padding" : "2px"})),
-        dbc.Col(dbc.Button("Remove-Row", color="danger", class_name="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=True, n_clicks=0, style={"padding" : "2px"}))
+        dbc.Col(dbc.Button("Delete", color="danger", class_name="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=False, n_clicks=0, style={"padding" : "2px"})),
+        # dbc.Col(dbc.Button("Update", color="warning", class_name="me-1", id={'type': 'update-btn', 'index': f'update-btn_0'} , disabled=False, n_clicks=0, style={"padding" : "2px"}))
+
     ],
     style = {"padding" : "5px",
             "border": "2px solid rgba(0, 0, 0, 0.3)",
@@ -232,7 +238,16 @@ bank_modal = html.Div(
     [
         dbc.Modal(
             [
-                dbc.ModalHeader(dbc.ModalTitle("Read Data from bank account"), close_button=True),
+                dbc.ModalHeader([
+                    dbc.ModalTitle("Read Data from database"),
+                    dbc.Row([
+                        dbc.Col(dcc.DatePickerSingle(date=datetime.today() + timedelta(days=-7),id="read-start-date", display_format='D-M-Y', style={"padding" : "10px"})),
+                        dbc.Col(dcc.DatePickerSingle(date=datetime.today(), id="read-end-date", display_format='D-M-Y', style={"padding" : "10px"})),
+                    ]),
+                    ],
+                    close_button=True,
+                ),
+                
                 dbc.ModalBody([
     
                     *base_element
@@ -255,19 +270,19 @@ bank_modal = html.Div(
                         color="primary"
                     )),
                     dbc.Col(dbc.Button(
-                        "Submit/Update",
+                        "Submit",
                         id="bank-submit",
                         class_name="me-1",
                         n_clicks=0,
                         color="success"
                     )),
-                    dbc.Col(dbc.Button(
-                        "Delete",
-                        id="bank-delete",
-                        class_name="me-1",
-                        n_clicks=0,
-                        color="danger"
-                    )),
+                    # dbc.Col(dbc.Button(
+                    #     "Delete",
+                    #     id="bank-delete",
+                    #     class_name="me-1",
+                    #     n_clicks=0,
+                    #     color="danger"
+                    # )),
                 ])
                 ),
             ],
@@ -315,7 +330,7 @@ del_modal = html.Div(
         )
     ])
 
-app.layout = dbc.Container( children=[
+app.layout = dbc.Container(class_name="app-container",children=[
     dbc.Col(
         [
             title,
@@ -326,6 +341,7 @@ app.layout = dbc.Container( children=[
             graph_modal,
             del_modal
         ],
+        class_name="content-col",
         width=12,
     ),
 ]
@@ -334,6 +350,9 @@ app.layout = dbc.Container( children=[
 def table2child(table, child):
     df = pd.DataFrame(table)
     tmp_child = []
+    cols = list(df.columns)
+    if "remove-btn" in cols:
+        df.drop(columns=["remove-btn"], axis=1)
     for idx, row in df.iterrows():
         if df.shape[0] > 1:
             disab = False
@@ -349,7 +368,8 @@ def table2child(table, child):
             dbc.Col(dcc.Dropdown(list(config["user"]), value=row.user, disabled=True, id={'type': 'user', 'index': f'user_{idx}'}, clearable=False ,style={"min-width" : "100px", "padding" : "2px"})),
             dbc.Col(dcc.DatePickerSingle(date=tmp_date, id={'type': 'date', 'index': f'date_{idx}'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
             dbc.Col(dbc.Input(placeholder="10,30", value=row.amount, id={'type': 'amount', 'index': f'amount_{idx}'}, style={"min-width" : "100px", "padding" : "2px"})),
-            dbc.Col(dbc.Button("Remove-Row", color="danger", class_name="me-1", id={'type': 'remove-btn', 'index': f'remove-btn_{idx}'} , disabled=disab, n_clicks=0, style={"padding" : "2px"}))
+            dbc.Col(dbc.Button("Delete", color="danger", class_name="me-1", id={'type': 'remove-btn', 'index': f'remove-btn_{idx}'} , disabled=disab, n_clicks=0, style={"padding" : "2px"})),
+            # dbc.Col(dbc.Button("Update", color="warning", class_name="me-1", id={'type': 'update-btn', 'index': f'update-btn_{idx}'} , disabled=disab, n_clicks=0, style={"padding" : "2px"}))
             ],
             style = {"padding" : "10px",
                     "border": "2px solid rgba(0, 0, 0, 0.3)",
@@ -366,12 +386,20 @@ def table2child(table, child):
 def child2table(child):
     df = {}
     for row in child:
-        for col in row["props"]["children"][:-1]:
+        for col in row["props"]["children"]:
             element = col["props"]["children"]["props"]
             tmp_key = element["id"]["type"]
+            
+            if "btn" in tmp_key:
+                tmp_key = "bID"
+            
             if not tmp_key in list(df.keys()):
                 df[tmp_key] = []
+
             match tmp_key:
+                case tmp_key if "bID" in tmp_key:
+                    btn_id = int(element["id"]["index"].split("_")[1])
+                    df["bID"].append(btn_id)
                 case "date":
                     df[tmp_key].append(element["date"])
                 case _:
@@ -413,8 +441,8 @@ Callback that creates table from datastore and stores all changes made to the ta
     Input("del-yes", "n_clicks"),
     Input("bank-read", "n_clicks"),
     State("bank-body", "children"),
-    State("start-date", "date"),
-    State("end-date", "date") 
+    State("read-start-date", "date"),
+    State("read-end-date", "date") 
 )
 
 def update_rows(remove_btn, new_row_clicks, sub_click, delete_click, read_click, child, start_dat, end_dat):
@@ -443,8 +471,11 @@ def update_rows(remove_btn, new_row_clicks, sub_click, delete_click, read_click,
         
         match trigger:
             case trigger if "remove" in trigger:
-                del_col = int(trigger.split("_")[1])
-                df = df.drop([del_col])
+                del_id = int(trigger.split("_")[1])
+                df = df.sort_index()
+                del_data = df.query(f"bID == {del_id}")
+                delete_data(del_data)
+                df = df.drop([del_data.index[0]])
                 df = df.set_index(pd.Index(list(range(0, df.shape[0]))))
     else:
         new_row = df.tail(1)
@@ -475,7 +506,9 @@ def update_rows(remove_btn, new_row_clicks, sub_click, delete_click, read_click,
                     df = df.sort_values("tmp_date")
             case "bank-delete":
                 df = new_row
-    # build ui table from data 
+    # build ui table from data
+    # new_idx = list(range(df.shape[0]))
+    # df = df.reindex(new_idx)
     test_child = table2child(df, child)
     return test_child
         
@@ -518,7 +551,7 @@ def open_bank_modal(bank_clicks, submit_clicks, del_y, del_n):
         
 @app.callback(
     Output("del-modal", "is_open"),
-    Input("bank-delete", "n_clicks"),
+    Input({"type" : "remove-btn", "index": ALL}, "n_clicks"),
     Input("del-yes", "n_clicks"),
     Input("del-no", "n_clicks"),
 )
