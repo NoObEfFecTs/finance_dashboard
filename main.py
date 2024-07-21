@@ -223,7 +223,7 @@ base_element = dbc.Row([
         dbc.Col(dcc.DatePickerSingle(date=date.today(), id={'type': 'date', 'index': 'date_0'}, display_format='D-M-Y', style={"min-width" : "150px", "padding" : "2px"})),
         dbc.Col(dbc.Input(placeholder="10,30", value=None, id={'type': 'amount', 'index': 'amount_0'}, style={"min-width" : "100px", "padding" : "2px"})),
         dbc.Col(dbc.Button("Delete", color="danger", class_name="me-1", id={'type': 'remove-btn', 'index': 'remove-btn_0'} , disabled=False, n_clicks=0, style={"padding" : "2px"})),
-        # dbc.Col(dbc.Button("Update", color="warning", class_name="me-1", id={'type': 'update-btn', 'index': f'update-btn_0'} , disabled=False, n_clicks=0, style={"padding" : "2px"}))
+        dbc.Col(dbc.Button("Update", color="warning", class_name="me-1", id={'type': 'update-btn', 'index': f'update-btn_0'} , disabled=False, n_clicks=0, style={"padding" : "2px"}))
 
     ],
     style = {"padding" : "5px",

@@ -30,21 +30,6 @@ url = config["db_conf"]["url"]
 
 def delete_data(data):
     with InfluxDBClient(url=url, token=token, org=org) as client:
-        # for idx, row in data.iterrows():
-            # date = row["date"]
-            # person = row["user"]
-            # company = row["company"]
-            # category = row["category"]
-            # amount = row["amount"]
-            # mes = "cost"
-            # year = int(date.split("-")[0])
-            # month = int(date.split("-")[1])
-            # day = int(date.split("-")[2])
-            # start_tmp_date = datetime(year, month, day, 0, 0)
-            # end_tmp_date = datetime(year, month, day, 23, 0)
-            # delete_api = client.delete_api()
-            # delete_api.delete(start_tmp_date, end_tmp_date, f'_measurement={mes} AND category={category} AND company={company}', bucket=bucket, org=org)
-
         date = data.date.to_string().split("  ")[-1]
         user = data.user.to_string().split("  ")[-1]
         company = data.company.to_string().split("  ")[-1]
